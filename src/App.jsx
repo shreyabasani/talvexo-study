@@ -28,9 +28,9 @@ import {
   getBadgeTier,
 } from './questionsData';
 
-import priyaImg from '../priya.jpeg';
-import rohanImg from '../rohan.jpeg';
-import ananyaImg from '../ananya.jpeg';
+import priyaImg from '../Priya.jpeg';
+import rohanImg from '../Rohan.jpeg';
+import ananyaImg from '../Ananya.jpeg';
 
 const STORAGE_KEY = 'talvexo_assessment_progress_v2';
 const ADMIN_PASSWORD = 'Admin@2025';
