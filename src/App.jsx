@@ -48,7 +48,7 @@ function generateParticipantCode() {
   return `TVX-${digits}`;
 }
 
-/* Clean Spider-Verse Character JPEG Portrait */
+/* Clean Spider-Verse Character JPEG Portrait (Gamified Mode) */
 function CharacterAvatar({ char, size = 'md' }) {
   const dim =
     size === 'sm'
@@ -391,7 +391,7 @@ function CandidateAssessment() {
   const [timeLeft, setTimeLeft] = useState(SECTION_TIMERS[1]);
   const [answers, setAnswers] = useState({ 1: {}, 2: {}, 3: {} });
   const [sectionTimes, setSectionTimes] = useState({ 1: 0, 2: 0, 3: 0 });
-  const [tradSelected, setTradSelected] = useState('');
+  const [tradError, setTradError] = useState('');
 
   // Telemetry: Tab Switches & Per-Question Response Timings
   const [tabSwitches, setTabSwitches] = useState(0);
@@ -399,7 +399,7 @@ function CandidateAssessment() {
   const questionStartRef = useRef(Date.now());
 
   // 2-Step Interactive "How to Play" Tour on First Gamified Question
-  const [tourStep, setTourStep] = useState(0); // 0 = inactive, 1 = Intel Tokens, 2 = Mission Roadmap
+  const [tourStep, setTourStep] = useState(0);
 
   const [tokensLeft, setTokensLeft] = useState(INITIAL_INTEL_TOKENS);
   const [unlockedClues, setUnlockedClues] = useState({});
@@ -472,26 +472,23 @@ function CandidateAssessment() {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [step]);
 
-  // Reset per-question timer whenever a new question renders
+  // Reset per-question timer whenever a new question/section renders
   useEffect(() => {
     if (step === 'assessment') {
       questionStartRef.current = Date.now();
     }
   }, [step, section, qIndex]);
 
+  // Keyboard shortcuts A/B/C in Gamified step-by-step mode
   useEffect(() => {
-    if (step !== 'assessment' || popup || tourStep > 0) return;
+    if (!isGamified || step !== 'assessment' || popup || tourStep > 0) return;
     function onKeyDown(e) {
       const key = e.key.toUpperCase();
       if (key === 'A' || key === 'B' || key === 'C') {
         const q = currentQuestions[qIndex];
         const opt = q?.options.find((o) => o.id === key);
         if (opt) {
-          if (isGamified) {
-            handleGamifiedAnswer(opt);
-          } else {
-            setTradSelected(opt.id);
-          }
+          handleGamifiedAnswer(opt);
         }
       }
     }
@@ -620,7 +617,7 @@ function CandidateAssessment() {
 
   function handlePreviewJump(target) {
     setPopup(null);
-    setTradSelected('');
+    setTradError('');
     setTourStep(0);
     if (target === 'sec1') {
       setSection(1);
@@ -721,7 +718,7 @@ function CandidateAssessment() {
     setQIndex(0);
     setTimeLeft(SECTION_TIMERS[1]);
     setAnswers({ 1: {}, 2: {}, 3: {} });
-    setTradSelected('');
+    setTradError('');
     setTabSwitches(0);
     setQuestionTimings({});
     setTokensLeft(INITIAL_INTEL_TOKENS);
@@ -739,7 +736,7 @@ function CandidateAssessment() {
     const spent = SECTION_TIMERS[section] - (timedOut ? 0 : timeLeft);
     setSectionTimes((prev) => ({ ...prev, [section]: spent }));
     setPopup(null);
-    setTradSelected('');
+    setTradError('');
     warnedRef.current = false;
 
     if (isGamified) {
@@ -817,27 +814,18 @@ function CandidateAssessment() {
     }, 2000);
   }
 
-  function handleTraditionalNext() {
-    if (!tradSelected) return;
-    const q = currentQuestions[qIndex];
-    recordQuestionDuration(q.id);
-
-    const opt = q.options.find((o) => o.id === tradSelected);
-    const updated = {
-      ...answers,
-      [section]: {
-        ...answers[section],
-        [q.id]: { selected: opt.id, marks: opt.marks },
-      },
-    };
-    setAnswers(updated);
-    setTradSelected('');
-
-    if (qIndex + 1 < currentQuestions.length) {
-      setQIndex(qIndex + 1);
-    } else {
-      handleSectionComplete(false);
+  // Google Form-style Traditional Section Submission (all questions in current section)
+  function handleTraditionalSectionSubmit(e) {
+    e.preventDefault();
+    const sectionAns = answers[section] || {};
+    const allAnswered = currentQuestions.every((q) => Boolean(sectionAns[q.id]));
+    if (!allAnswered) {
+      setTradError('Please answer every question in this section before continuing.');
+      return;
     }
+    setTradError('');
+    currentQuestions.forEach((q) => recordQuestionDuration(q.id));
+    handleSectionComplete(false);
   }
 
   function computeScores() {
@@ -1059,12 +1047,11 @@ function CandidateAssessment() {
               <option value="debrief">Screen: 12. Debrief</option>
             </select>
 
-            {step === 'assessment' && (
+            {isGamified && step === 'assessment' && (
               <select
                 value={qIndex}
                 onChange={(e) => {
                   setPopup(null);
-                  setTradSelected('');
                   setQIndex(Number(e.target.value));
                 }}
                 className="bg-slate-800 border border-slate-600 rounded px-2.5 py-1 font-semibold text-amber-300"
@@ -1178,7 +1165,7 @@ function CandidateAssessment() {
                 />
               ) : (
                 <div className="text-xs font-medium text-slate-600 mt-2">
-                  Section {section} of 3
+                  Section {section} of 3 — {bank.sectionTitles[section]}
                 </div>
               )}
             </div>
@@ -1186,7 +1173,7 @@ function CandidateAssessment() {
         </header>
       )}
 
-      {/* Interactive 2-Step "How to Play" Guided Tour Banner */}
+      {/* Interactive 2-Step "How to Play" Guided Tour Banner (Gamified Only) */}
       {isGamified && step === 'assessment' && tourStep > 0 && (
         <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-4">
           <div className="bg-slate-900 text-white rounded-2xl p-4 shadow-xl border border-teal-400 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -1612,10 +1599,10 @@ function CandidateAssessment() {
         </main>
       )}
 
-      {/* 5. ACTIVE ASSESSMENT SCREEN (BOTH MODES) */}
-      {step === 'assessment' && (
+      {/* 5. ACTIVE ASSESSMENT SCREEN: GAMIFIED (Step-by-Step) vs TRADITIONAL (Google Form Style) */}
+      {step === 'assessment' && isGamified && (
         <main className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-          {isGamified && qIndex === 0 && (
+          {qIndex === 0 && (
             <div className="bg-white rounded-2xl p-4 mb-6 border border-slate-200 shadow-xs flex items-center gap-4">
               <CharacterAvatar
                 char={
@@ -1649,21 +1636,12 @@ function CandidateAssessment() {
           )}
 
           {section === 2 && (
-            <DashboardView
-              dashboard={bank.dashboard}
-              isGamified={isGamified}
-            />
+            <DashboardView dashboard={bank.dashboard} isGamified={true} />
           )}
 
           {currentQuestions[qIndex] && (
-            <div
-              className={
-                isGamified
-                  ? 'bg-white rounded-2xl p-5 sm:p-8 shadow-md border border-slate-200'
-                  : 'bg-white border border-slate-300 p-5 sm:p-6'
-              }
-            >
-              {isGamified && section === 3 && (
+            <div className="bg-white rounded-2xl p-5 sm:p-8 shadow-md border border-slate-200">
+              {section === 3 && (
                 <div className="mb-4 p-3 rounded-xl bg-amber-50 border border-amber-200 flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2 text-xs font-bold text-amber-900">
                     <MailWarning className="w-4 h-4 text-amber-600 shrink-0" />
@@ -1682,112 +1660,86 @@ function CandidateAssessment() {
                   {bank.sectionTitles[section]}
                 </span>
                 <span className="font-semibold">
-                  {isGamified
-                    ? `Decision ${qIndex + 1} of ${currentQuestions.length}`
-                    : `Question ${qIndex + 1} of ${currentQuestions.length}`}
+                  Decision {qIndex + 1} of {currentQuestions.length}
                 </span>
               </div>
 
-              {isGamified && section !== 3 && (
+              {section !== 3 && (
                 <div className="inline-block text-xs font-semibold px-2.5 py-0.5 rounded-full bg-teal-50 text-[#0D9488] mb-3">
                   {currentQuestions[qIndex].tag}
                 </div>
               )}
 
-              {isGamified &&
-                section === 1 &&
-                currentQuestions[qIndex].briefStats && (
-                  <div className="flex flex-wrap gap-2 mb-3.5">
-                    {currentQuestions[qIndex].briefStats.map((stat, sIdx) => (
-                      <span
-                        key={sIdx}
-                        className="px-2.5 py-1 rounded-md bg-blue-50 border border-blue-200 text-xs font-bold text-[#1E3A8A]"
-                      >
-                        {stat}
-                      </span>
-                    ))}
-                  </div>
-                )}
+              {section === 1 && currentQuestions[qIndex].briefStats && (
+                <div className="flex flex-wrap gap-2 mb-3.5">
+                  {currentQuestions[qIndex].briefStats.map((stat, sIdx) => (
+                    <span
+                      key={sIdx}
+                      className="px-2.5 py-1 rounded-md bg-blue-50 border border-blue-200 text-xs font-bold text-[#1E3A8A]"
+                    >
+                      {stat}
+                    </span>
+                  ))}
+                </div>
+              )}
 
               <h3 className="text-base sm:text-lg font-semibold leading-relaxed text-[#2C2C2C]">
                 {currentQuestions[qIndex].question}
               </h3>
 
-              {isGamified && (
-                <div className="mt-4">
-                  {unlockedClues[currentQuestions[qIndex].id] ? (
-                    <div className="p-3.5 rounded-xl bg-amber-50/90 border border-amber-300 flex items-start gap-2.5 text-xs sm:text-sm text-amber-950">
-                      <Lightbulb className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                      <div>
-                        <span className="font-bold">Unlocked Analyst Clue: </span>
-                        {currentQuestions[qIndex].clue}
-                      </div>
+              <div className="mt-4">
+                {unlockedClues[currentQuestions[qIndex].id] ? (
+                  <div className="p-3.5 rounded-xl bg-amber-50/90 border border-amber-300 flex items-start gap-2.5 text-xs sm:text-sm text-amber-950">
+                    <Lightbulb className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                    <div>
+                      <span className="font-bold">Unlocked Analyst Clue: </span>
+                      {currentQuestions[qIndex].clue}
                     </div>
-                  ) : (
-                    <button
-                      type="button"
-                      disabled={
-                        tokensLeft <= 0 || Boolean(popup) || tourStep > 0
-                      }
-                      onClick={() =>
-                        handleUnlockClue(currentQuestions[qIndex].id)
-                      }
-                      className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold border transition ${
-                        tokensLeft > 0
-                          ? 'bg-amber-50 hover:bg-amber-100 border-amber-300 text-amber-900'
-                          : 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed'
-                      }`}
-                    >
-                      <Coins className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                      {tokensLeft > 0
-                        ? `Spend 1 Intel Token to Reveal Clue (${tokensLeft} left)`
-                        : '0 Intel Tokens Remaining'}
-                    </button>
-                  )}
-                </div>
-              )}
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={
+                      tokensLeft <= 0 || Boolean(popup) || tourStep > 0
+                    }
+                    onClick={() => handleUnlockClue(currentQuestions[qIndex].id)}
+                    className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold border transition ${
+                      tokensLeft > 0
+                        ? 'bg-amber-50 hover:bg-amber-100 border-amber-300 text-amber-900'
+                        : 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed'
+                    }`}
+                  >
+                    <Coins className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                    {tokensLeft > 0
+                      ? `Spend 1 Intel Token to Reveal Clue (${tokensLeft} left)`
+                      : '0 Intel Tokens Remaining'}
+                  </button>
+                )}
+              </div>
 
               <div className="mt-5 space-y-3">
                 {currentQuestions[qIndex].options.map((opt) => {
                   const isPicked =
-                    (isGamified &&
-                      answers[section]?.[currentQuestions[qIndex].id]
-                        ?.selected === opt.id) ||
-                    (!isGamified && tradSelected === opt.id);
+                    answers[section]?.[currentQuestions[qIndex].id]?.selected ===
+                    opt.id;
 
                   return (
                     <button
                       key={opt.id}
                       type="button"
                       disabled={Boolean(popup) || tourStep > 0}
-                      onClick={() => {
-                        if (isGamified) {
-                          handleGamifiedAnswer(opt);
-                        } else {
-                          setTradSelected(opt.id);
-                        }
-                      }}
-                      className={`w-full text-left p-3.5 sm:p-4 transition-all flex items-start gap-3 sm:gap-3.5 ${
-                        isGamified
-                          ? `rounded-xl border-2 hover:-translate-y-0.5 hover:shadow-sm ${
-                              isPicked
-                                ? 'border-[#0D9488] bg-teal-50/70 ring-2 ring-teal-200'
-                                : 'border-slate-200 hover:border-[#4A90E2] hover:bg-blue-50/30'
-                            }`
-                          : `border ${
-                              isPicked
-                                ? 'border-slate-800 bg-slate-100'
-                                : 'border-slate-300 hover:bg-slate-50'
-                            }`
+                      onClick={() => handleGamifiedAnswer(opt)}
+                      className={`w-full text-left p-3.5 sm:p-4 transition-all flex items-start gap-3 sm:gap-3.5 rounded-xl border-2 hover:-translate-y-0.5 hover:shadow-sm ${
+                        isPicked
+                          ? 'border-[#0D9488] bg-teal-50/70 ring-2 ring-teal-200'
+                          : 'border-slate-200 hover:border-[#4A90E2] hover:bg-blue-50/30'
                       }`}
                     >
                       <span
                         className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5 ${
-                          isGamified
-                            ? isPicked
-                              ? 'bg-[#0D9488] text-white'
-                              : 'bg-slate-100 text-[#2C2C2C]'
-                            : 'border border-slate-400 text-slate-700'
+                          isPicked
+                            ? 'bg-[#0D9488] text-white'
+                            : 'bg-slate-100 text-[#2C2C2C]'
                         }`}
                       >
                         {opt.id}
@@ -1800,30 +1752,92 @@ function CandidateAssessment() {
                 })}
               </div>
 
-              {isGamified && (
-                <div className="mt-4 text-[11px] text-slate-400 text-right hidden sm:block">
-                  Tip: You can also press keys A, B, or C to select
-                </div>
-              )}
-
-              {!isGamified && (
-                <div className="mt-6 flex justify-end">
-                  <button
-                    type="button"
-                    disabled={!tradSelected}
-                    onClick={handleTraditionalNext}
-                    className="px-6 py-2.5 bg-[#2C2C2C] text-white text-sm font-semibold disabled:opacity-40"
-                  >
-                    {qIndex + 1 < currentQuestions.length
-                      ? 'Next Question'
-                      : section < 3
-                      ? 'Complete Section'
-                      : 'Finish Assessment'}
-                  </button>
-                </div>
-              )}
+              <div className="mt-4 text-[11px] text-slate-400 text-right hidden sm:block">
+                Tip: You can also press keys A, B, or C to select
+              </div>
             </div>
           )}
+        </main>
+      )}
+
+      {/* TRADITIONAL MODE: GOOGLE FORM-STYLE ALL-IN-ONE SECTION MCQ FORM */}
+      {step === 'assessment' && !isGamified && (
+        <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
+          {section === 2 && (
+            <DashboardView dashboard={bank.dashboard} isGamified={false} />
+          )}
+
+          <form onSubmit={handleTraditionalSectionSubmit} className="space-y-5">
+            {currentQuestions.map((q, idx) => {
+              const selectedOptId = answers[section]?.[q.id]?.selected || '';
+              return (
+                <div
+                  key={q.id}
+                  className="bg-white border border-slate-300 rounded-md p-5 sm:p-6"
+                >
+                  <div className="text-sm font-semibold text-[#2C2C2C] leading-relaxed">
+                    {idx + 1}. {q.question} *
+                  </div>
+
+                  <div className="mt-4 space-y-2.5">
+                    {q.options.map((opt) => {
+                      const checked = selectedOptId === opt.id;
+                      return (
+                        <label
+                          key={opt.id}
+                          className={`flex items-start gap-3 p-3 rounded border cursor-pointer text-sm ${
+                            checked
+                              ? 'border-slate-800 bg-slate-100 font-medium'
+                              : 'border-slate-200 hover:bg-slate-50'
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name={q.id}
+                            value={opt.id}
+                            checked={checked}
+                            onChange={() => {
+                              setTradError('');
+                              setAnswers((prev) => ({
+                                ...prev,
+                                [section]: {
+                                  ...(prev[section] || {}),
+                                  [q.id]: {
+                                    selected: opt.id,
+                                    marks: opt.marks,
+                                  },
+                                },
+                              }));
+                            }}
+                            className="mt-1 accent-[#2C2C2C]"
+                          />
+                          <span className="leading-relaxed">
+                            <strong className="mr-1.5">{opt.id}.</strong>
+                            {opt.text}
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+
+            {tradError && (
+              <div className="p-3 rounded bg-red-50 border border-red-200 text-xs font-medium text-red-700">
+                {tradError}
+              </div>
+            )}
+
+            <div className="flex justify-end pt-2">
+              <button
+                type="submit"
+                className="px-7 py-3 rounded bg-[#2C2C2C] hover:bg-slate-800 text-white text-sm font-semibold transition"
+              >
+                {section < 3 ? 'Next Section' : 'Submit Assessment'}
+              </button>
+            </div>
+          </form>
         </main>
       )}
 
@@ -2127,7 +2141,6 @@ function CandidateAssessment() {
               <span>Submission Recorded</span>
             </div>
 
-            {/* Participant Reference Code Card */}
             <div className="my-5 p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-3">
               <div>
                 <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
@@ -2252,7 +2265,6 @@ function AdminPanel() {
       ? (arr.reduce((s, r) => s + Number(r[key] || 0), 0) / arr.length).toFixed(2)
       : '0.00';
 
-  // SPSS / Jamovi / R Ready Numeric Export
   function exportSPSSCSV() {
     if (!filtered.length) return;
     const spssHeaders = [
