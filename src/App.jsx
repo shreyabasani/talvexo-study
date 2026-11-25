@@ -77,7 +77,6 @@ function DashboardView({ dashboard, isGamified }) {
           : 'border border-slate-300 p-4 mb-6 bg-white'
       }
     >
-      {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
         {dashboard.kpis.map((kpi, idx) => (
           <div
@@ -101,7 +100,6 @@ function DashboardView({ dashboard, isGamified }) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {/* Bar Chart */}
         <div
           className={
             isGamified
@@ -138,7 +136,6 @@ function DashboardView({ dashboard, isGamified }) {
           </div>
         </div>
 
-        {/* Right Panel: Segments or P&L Table */}
         <div
           className={
             isGamified
@@ -153,7 +150,10 @@ function DashboardView({ dashboard, isGamified }) {
               </div>
               <div className="space-y-2.5">
                 {dashboard.segments.map((seg) => (
-                  <div key={seg.name} className="flex items-center justify-between text-xs border-b border-slate-200 pb-1.5">
+                  <div
+                    key={seg.name}
+                    className="flex items-center justify-between text-xs border-b border-slate-200 pb-1.5"
+                  >
                     <span className="font-medium text-slate-700">{seg.name}</span>
                     <span
                       className={`font-bold px-2 py-0.5 rounded ${
@@ -228,7 +228,6 @@ function CandidateAssessment() {
   const [consentChecked, setConsentChecked] = useState(false);
   const [muted, setMuted] = useState(false);
 
-  // Registration & Assignment State
   const [form, setForm] = useState({
     full_name: isPreview ? 'Preview Candidate' : '',
     college_name: isPreview ? 'VIT Business School' : '',
@@ -248,7 +247,6 @@ function CandidateAssessment() {
   );
   const [randomDecimal, setRandomDecimal] = useState(0.25);
 
-  // Section & Question State
   const [section, setSection] = useState(1);
   const [qIndex, setQIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(SECTION_TIMERS[1]);
@@ -256,14 +254,12 @@ function CandidateAssessment() {
   const [sectionTimes, setSectionTimes] = useState({ 1: 0, 2: 0, 3: 0 });
   const [tradSelected, setTradSelected] = useState('');
 
-  // Gamified Pop-up & Badge Transition State
   const [popup, setPopup] = useState(null);
   const [badgeTransitionSec, setBadgeTransitionSec] = useState(null);
+  const [previewSimulatedScore, setPreviewSimulatedScore] = useState(null);
 
-  // 10-Second Reflection Buffer
   const [bufferLeft, setBufferLeft] = useState(10);
 
-  // Survey State
   const [mcScore, setMcScore] = useState(0);
   const [survey, setSurvey] = useState({});
   const [openFeedback, setOpenFeedback] = useState('');
@@ -283,7 +279,6 @@ function CandidateAssessment() {
       ? bank.section2
       : bank.section3;
 
-  // Check local saved progress on load
   useEffect(() => {
     if (isPreview) return;
     try {
@@ -295,11 +290,10 @@ function CandidateAssessment() {
         }
       }
     } catch {
-      // Ignore storage errors
+      // Ignore
     }
   }, [isPreview]);
 
-  // Auto-save progress locally every 10 seconds during assessment
   useEffect(() => {
     if (isPreview || step !== 'assessment') return;
     const interval = setInterval(() => {
@@ -320,7 +314,7 @@ function CandidateAssessment() {
           })
         );
       } catch {
-        // Ignore storage errors
+        // Ignore
       }
     }, 10000);
     return () => clearInterval(interval);
@@ -337,7 +331,6 @@ function CandidateAssessment() {
     sectionTimes,
   ]);
 
-  // Section Countdown Timer
   useEffect(() => {
     if (step !== 'assessment' || popup) return;
     const timer = setInterval(() => {
@@ -357,7 +350,6 @@ function CandidateAssessment() {
     return () => clearInterval(timer);
   }, [step, section, popup, isGamified]);
 
-  // 10-Second Reflection Buffer Timer
   useEffect(() => {
     if (step !== 'buffer') return;
     setBufferLeft(10);
@@ -377,6 +369,36 @@ function CandidateAssessment() {
     const next = !muted;
     setMuted(next);
     soundEngine.muted = next;
+  }
+
+  function handlePreviewJump(target) {
+    setPopup(null);
+    setTradSelected('');
+    if (target === 'sec1') {
+      setSection(1);
+      setQIndex(0);
+      setTimeLeft(SECTION_TIMERS[1]);
+      setStep('assessment');
+    } else if (target === 'sec2') {
+      setSection(2);
+      setQIndex(0);
+      setTimeLeft(SECTION_TIMERS[2]);
+      setStep('assessment');
+    } else if (target === 'sec3') {
+      setSection(3);
+      setQIndex(0);
+      setTimeLeft(SECTION_TIMERS[3]);
+      setStep('assessment');
+    } else if (target === 'badge_transition') {
+      setMode('Gamified');
+      setBadgeTransitionSec(section);
+      setStep('badge_transition');
+    } else if (target === 'results') {
+      setMode('Gamified');
+      setStep('results');
+    } else {
+      setStep(target);
+    }
   }
 
   function handleResumeSaved() {
@@ -460,10 +482,12 @@ function CandidateAssessment() {
       soundEngine.playBadge();
       setBadgeTransitionSec(section);
       setStep('badge_transition');
-      setTimeout(() => {
-        setBadgeTransitionSec(null);
-        advanceAfterSection(section);
-      }, 3500);
+      if (!isPreview) {
+        setTimeout(() => {
+          setBadgeTransitionSec(null);
+          advanceAfterSection(section);
+        }, 3500);
+      }
     } else {
       advanceAfterSection(section);
     }
@@ -549,6 +573,15 @@ function CandidateAssessment() {
   }
 
   function computeScores() {
+    if (isPreview && previewSimulatedScore !== null) {
+      if (previewSimulatedScore === 28)
+        return { s1: 8, s2: 8, s3: 12, total: 28 };
+      if (previewSimulatedScore === 21)
+        return { s1: 6, s2: 7, s3: 8, total: 21 };
+      if (previewSimulatedScore === 14)
+        return { s1: 4, s2: 6, s3: 4, total: 14 };
+      return { s1: 2, s2: 4, s3: 0, total: 6 };
+    }
     const s1 = Object.values(answers[1] || {}).reduce(
       (sum, a) => sum + (a.marks || 0),
       0
@@ -653,27 +686,41 @@ function CandidateAssessment() {
     }
   }
 
-  // ---------------- RENDER SCREENS ----------------
-
   return (
     <div
       className={`min-h-screen font-sans ${
-        isGamified && step !== 'landing' && step !== 'consent' && step !== 'register'
+        isGamified &&
+        step !== 'landing' &&
+        step !== 'consent' &&
+        step !== 'register'
           ? 'bg-[#F1F5F9]'
           : 'bg-white'
       } text-[#2C2C2C]`}
     >
-      {/* Preview Mode Banner */}
+      {/* FULL INSPECTION & PREVIEW CONTROL BAR */}
       {isPreview && (
-        <div className="bg-amber-500 text-white text-xs font-semibold px-4 py-2 flex flex-wrap items-center justify-between gap-2">
-          <span>Preview Mode Active — No data will be written to Supabase.</span>
+        <div className="bg-slate-900 text-white text-xs px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 border-b border-amber-500">
           <div className="flex items-center gap-2">
+            <span className="px-2 py-0.5 rounded bg-amber-500 text-slate-950 font-bold">
+              PREVIEW SANDBOX
+            </span>
+            <span className="text-slate-300 hidden sm:inline">
+              No data written to Supabase
+            </span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Mode Switcher */}
             <button
-              onClick={() => setMode(mode === 'Gamified' ? 'Traditional' : 'Gamified')}
-              className="bg-white/20 hover:bg-white/30 px-2.5 py-1 rounded"
+              onClick={() =>
+                setMode(mode === 'Gamified' ? 'Traditional' : 'Gamified')
+              }
+              className="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-2.5 py-1 rounded font-semibold"
             >
-              Mode: {mode}
+              Mode: <span className="text-amber-400">{mode}</span>
             </button>
+
+            {/* Stream Switcher */}
             <button
               onClick={() =>
                 setForm((f) => ({
@@ -681,13 +728,73 @@ function CandidateAssessment() {
                   stream: f.stream === 'Marketing' ? 'Finance' : 'Marketing',
                 }))
               }
-              className="bg-white/20 hover:bg-white/30 px-2.5 py-1 rounded"
+              className="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-2.5 py-1 rounded font-semibold"
             >
-              Stream: {form.stream}
+              Stream: <span className="text-teal-400">{form.stream}</span>
             </button>
+
+            {/* Jump to Any Screen */}
+            <select
+              value={
+                step === 'assessment' ? `sec${section}` : step
+              }
+              onChange={(e) => handlePreviewJump(e.target.value)}
+              className="bg-slate-800 border border-slate-600 rounded px-2.5 py-1 font-semibold text-white"
+            >
+              <option value="landing">Screen: 1. Landing Page</option>
+              <option value="consent">Screen: 2. Consent</option>
+              <option value="register">Screen: 3. Registration</option>
+              <option value="welcome">Screen: 4. Welcome (Priya)</option>
+              <option value="sec1">Screen: 5. Section 1 (Aptitude)</option>
+              <option value="sec2">Screen: 6. Section 2 (Dashboard)</option>
+              <option value="sec3">Screen: 7. Section 3 (Ethics)</option>
+              <option value="badge_transition">
+                Screen: 8. Badge Transition
+              </option>
+              <option value="buffer">Screen: 9. 10s Buffer</option>
+              <option value="survey">Screen: 10. Post-Test Survey</option>
+              <option value="results">Screen: 11. Results & Badge</option>
+              <option value="debrief">Screen: 12. Debrief</option>
+            </select>
+
+            {/* Jump to Question inside Active Section */}
+            {step === 'assessment' && (
+              <select
+                value={qIndex}
+                onChange={(e) => {
+                  setPopup(null);
+                  setTradSelected('');
+                  setQIndex(Number(e.target.value));
+                }}
+                className="bg-slate-800 border border-slate-600 rounded px-2.5 py-1 font-semibold text-amber-300"
+              >
+                {currentQuestions.map((q, idx) => (
+                  <option key={q.id} value={idx}>
+                    Question {idx + 1} of {currentQuestions.length}
+                  </option>
+                ))}
+              </select>
+            )}
+
+            {/* Badge Tier Simulator on Results Screen */}
+            {step === 'results' && (
+              <select
+                value={previewSimulatedScore ?? 28}
+                onChange={(e) =>
+                  setPreviewSimulatedScore(Number(e.target.value))
+                }
+                className="bg-slate-800 border border-slate-600 rounded px-2.5 py-1 font-semibold text-teal-300"
+              >
+                <option value={28}>Simulate: Apex Performer (28/30)</option>
+                <option value={21}>Simulate: Rising Talent (21/30)</option>
+                <option value={14}>Simulate: Developing Leader (14/30)</option>
+                <option value={6}>Simulate: Bold Starter (6/30)</option>
+              </select>
+            )}
+
             <a
               href="/admin"
-              className="bg-slate-900 text-white px-2.5 py-1 rounded"
+              className="bg-red-600 hover:bg-red-500 text-white px-2.5 py-1 rounded font-semibold"
             >
               Exit Preview
             </a>
@@ -762,7 +869,7 @@ function CandidateAssessment() {
 
       {/* Top Character Pop-up Reaction (Gamified Mode Only) */}
       {isGamified && popup && (
-        <div className="fixed top-20 left-1/2 z-50 w-[92%] max-w-md animate-pop-in">
+        <div className="fixed top-24 left-1/2 z-50 w-[92%] max-w-md animate-pop-in">
           <div className="bg-white border-2 border-[#0D9488] rounded-2xl p-4 shadow-xl flex items-center gap-3.5">
             <CharacterAvatar char={popup.speaker} size="sm" />
             <div>
@@ -1045,7 +1152,6 @@ function CandidateAssessment() {
               </select>
             </div>
 
-            {/* Locked Role Display for Both Modes */}
             {form.stream && (
               <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between">
                 <span className="text-xs font-medium text-slate-600">
@@ -1068,7 +1174,7 @@ function CandidateAssessment() {
       )}
 
       {/* 4. GAMIFIED WELCOME SCREEN (Priya Sharma) */}
-      {step === 'welcome' && isGamified && (
+      {step === 'welcome' && (
         <main className="max-w-2xl mx-auto px-5 py-12">
           <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
@@ -1128,7 +1234,6 @@ function CandidateAssessment() {
       {/* 5. ACTIVE ASSESSMENT SCREEN (BOTH MODES) */}
       {step === 'assessment' && (
         <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-          {/* Section Character Intro Card (Gamified Mode Only, on first question of section) */}
           {isGamified && qIndex === 0 && (
             <div className="bg-white rounded-xl p-4 mb-6 border border-slate-200 shadow-xs flex items-center gap-3.5">
               <CharacterAvatar
@@ -1162,7 +1267,6 @@ function CandidateAssessment() {
             </div>
           )}
 
-          {/* Section 2 Data Dashboard */}
           {section === 2 && (
             <DashboardView
               dashboard={bank.dashboard}
@@ -1170,7 +1274,6 @@ function CandidateAssessment() {
             />
           )}
 
-          {/* Question Card */}
           {currentQuestions[qIndex] && (
             <div
               className={
@@ -1249,7 +1352,6 @@ function CandidateAssessment() {
                 })}
               </div>
 
-              {/* Traditional Mode Explicit Next Button */}
               {!isGamified && (
                 <div className="mt-6 flex justify-end">
                   <button
@@ -1272,7 +1374,7 @@ function CandidateAssessment() {
       )}
 
       {/* 6. GAMIFIED SECTION COMPLETION BADGE TRANSITION */}
-      {step === 'badge_transition' && isGamified && badgeTransitionSec && (
+      {step === 'badge_transition' && badgeTransitionSec && (
         <main className="min-h-[75vh] flex items-center justify-center px-5 bg-[#FFD93D]/25">
           <div className="max-w-md w-full bg-white rounded-2xl p-8 text-center shadow-lg border-2 border-[#FFD93D] animate-badge">
             <div className="w-16 h-16 rounded-full bg-[#FFD93D] text-[#2C2C2C] flex items-center justify-center mx-auto mb-4 shadow-sm">
@@ -1287,9 +1389,21 @@ function CandidateAssessment() {
             <p className="text-sm text-slate-600 mt-2">
               {bank.sectionBadges[badgeTransitionSec].desc}
             </p>
-            <div className="text-xs text-slate-400 mt-5">
-              Advancing to next stage...
-            </div>
+            {isPreview ? (
+              <button
+                onClick={() => {
+                  setBadgeTransitionSec(null);
+                  advanceAfterSection(badgeTransitionSec);
+                }}
+                className="mt-5 px-5 py-2 rounded-lg bg-[#4A90E2] text-white text-xs font-semibold"
+              >
+                Continue to Next Stage (Preview)
+              </button>
+            ) : (
+              <div className="text-xs text-slate-400 mt-5">
+                Advancing to next stage...
+              </div>
+            )}
           </div>
         </main>
       )}
@@ -1308,7 +1422,7 @@ function CandidateAssessment() {
 
           <div className="mt-8">
             <button
-              disabled={bufferLeft > 0}
+              disabled={bufferLeft > 0 && !isPreview}
               onClick={() => setStep('survey')}
               className="px-8 py-3 rounded-lg bg-[#4A90E2] text-white font-semibold text-sm disabled:opacity-40 hover:bg-blue-600 transition"
             >
@@ -1318,7 +1432,7 @@ function CandidateAssessment() {
         </main>
       )}
 
-      {/* 8. POST-TEST SURVEY (IDENTICAL FOR BOTH MODES) */}
+      {/* 8. POST-TEST SURVEY */}
       {step === 'survey' && (
         <main className="max-w-2xl mx-auto px-5 py-10">
           <div className="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 shadow-xs">
@@ -1330,7 +1444,6 @@ function CandidateAssessment() {
             </p>
 
             <form onSubmit={handleSurveySubmit} className="mt-6 space-y-6">
-              {/* Manipulation Check */}
               <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
                 <div className="text-sm font-semibold text-[#2C2C2C]">
                   How would you describe the format of the assessment you just
@@ -1358,7 +1471,6 @@ function CandidateAssessment() {
                 </div>
               </div>
 
-              {/* Construct Items */}
               {SURVEY_ITEMS.map((item, idx) => (
                 <div
                   key={item.id}
@@ -1388,7 +1500,6 @@ function CandidateAssessment() {
                 </div>
               ))}
 
-              {/* Optional Open Feedback */}
               <div>
                 <label className="block text-sm font-medium text-[#2C2C2C] mb-1">
                   Is there anything about the assessment experience you would
@@ -1423,7 +1534,7 @@ function CandidateAssessment() {
       )}
 
       {/* 9. GAMIFIED RESULTS & BADGE SCREEN */}
-      {step === 'results' && isGamified && (
+      {step === 'results' && (
         <main className="max-w-2xl mx-auto px-5 py-12">
           {(() => {
             const { s1, s2, s3, total } = computeScores();
@@ -1638,14 +1749,7 @@ function AdminPanel() {
             className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-teal-50 text-[#0D9488] border border-teal-200 text-xs font-semibold"
           >
             <Eye className="w-4 h-4" />
-            Preview Gamified
-          </a>
-          <a
-            href="/?preview=true&mode=traditional&stream=finance"
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-100 text-slate-700 border border-slate-300 text-xs font-semibold"
-          >
-            <Eye className="w-4 h-4" />
-            Preview Traditional
+            Open Full Preview Sandbox
           </a>
           <button
             onClick={fetchRows}
@@ -1665,7 +1769,6 @@ function AdminPanel() {
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-8 space-y-6">
-        {/* Summary Metrics */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div className="bg-white p-4 rounded-xl border border-slate-200">
             <div className="text-xs text-slate-500">Total Completed</div>
@@ -1693,7 +1796,6 @@ function AdminPanel() {
           </div>
         </div>
 
-        {/* Filter & Export Bar */}
         <div className="bg-white p-4 rounded-xl border border-slate-200 flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-3">
             <select
@@ -1726,7 +1828,6 @@ function AdminPanel() {
           </button>
         </div>
 
-        {/* Data Table */}
         <div className="bg-white rounded-xl border border-slate-200 overflow-x-auto">
           {loading ? (
             <div className="p-8 text-center text-sm text-slate-500">
