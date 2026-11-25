@@ -41,8 +41,8 @@ function formatTime(secs) {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
-/* Spider-Verse Character JPEG Portrait with Natural-Pace Lip-Sync Overlay */
-function CharacterAvatar({ char, size = 'md', speaking = false }) {
+/* Clean Spider-Verse Character JPEG Portrait */
+function CharacterAvatar({ char, size = 'md' }) {
   const dim =
     size === 'sm'
       ? 'w-14 h-14'
@@ -62,25 +62,13 @@ function CharacterAvatar({ char, size = 'md', speaking = false }) {
 
   return (
     <div
-      className={`${dim} rounded-full overflow-hidden shadow-lg border-[3px] ${ringColor} bg-slate-100 shrink-0 relative select-none ${
-        speaking ? 'animate-head-bob' : ''
-      }`}
+      className={`${dim} rounded-full overflow-hidden shadow-lg border-[3px] ${ringColor} bg-slate-100 shrink-0 relative select-none`}
     >
       <img
         src={imgSrc}
         alt={char.name}
         className="w-full h-full object-cover object-top"
       />
-
-      {/* Natural-Pace Talking Lip-Sync Overlay */}
-      {speaking && (
-        <div
-          className="lip-sync-mouth"
-          style={{
-            backgroundColor: isPriya ? '#BE123C' : '#881337',
-          }}
-        />
-      )}
     </div>
   );
 }
@@ -392,7 +380,6 @@ function CandidateAssessment() {
   const [unlockedClues, setUnlockedClues] = useState({});
 
   const [popup, setPopup] = useState(null);
-  const [introSpeaking, setIntroSpeaking] = useState(false);
   const [badgeTransitionSec, setBadgeTransitionSec] = useState(null);
   const [previewSimulatedScore, setPreviewSimulatedScore] = useState(null);
 
@@ -418,7 +405,7 @@ function CandidateAssessment() {
       ? bank.section2
       : bank.section3;
 
-  // Inject confetti + relaxed-speed talking lip-sync CSS animations once
+  // Inject confetti CSS animation once
   useEffect(() => {
     const styleId = 'talvexo-character-fx-style';
     if (!document.getElementById(styleId)) {
@@ -439,49 +426,13 @@ function CandidateAssessment() {
           animation-timing-function: ease-in;
           animation-fill-mode: forwards;
         }
-        @keyframes lipTalk {
-          0%, 100% { transform: translateX(-50%) scaleY(0.32) scaleX(1.04); border-radius: 999px; }
-          30% { transform: translateX(-50%) scaleY(1.05) scaleX(0.92); border-radius: 42% 42% 58% 58%; }
-          60% { transform: translateX(-50%) scaleY(0.45) scaleX(1.06); border-radius: 999px; }
-          85% { transform: translateX(-50%) scaleY(0.95) scaleX(0.94); border-radius: 45% 45% 55% 55%; }
-        }
-        @keyframes headBob {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          35% { transform: translateY(-1.2px) rotate(-0.7deg); }
-          70% { transform: translateY(-0.8px) rotate(0.7deg); }
-        }
-        .lip-sync-mouth {
-          position: absolute;
-          left: 50%;
-          top: 53%;
-          width: 14%;
-          height: 6.8%;
-          border: 1.5px solid rgba(255, 255, 255, 0.75);
-          box-shadow: inset 0 -2px 3px rgba(0, 0, 0, 0.45);
-          animation: lipTalk 0.72s infinite ease-in-out;
-          pointer-events: none;
-        }
-        .animate-head-bob {
-          animation: headBob 1.5s infinite ease-in-out;
-        }
         @media (prefers-reduced-motion: reduce) {
-          .confetti-piece, .lip-sync-mouth, .animate-head-bob { animation: none; }
+          .confetti-piece { animation: none; }
         }
       `;
       document.head.appendChild(style);
     }
   }, []);
-
-  // Trigger lip-sync animation for 3.6 seconds whenever Welcome screen or Section Intro appears
-  useEffect(() => {
-    if (!isGamified) return;
-    if (step === 'welcome' || (step === 'assessment' && qIndex === 0)) {
-      setIntroSpeaking(true);
-      const t = setTimeout(() => setIntroSpeaking(false), 3600);
-      return () => clearTimeout(t);
-    }
-    setIntroSpeaking(false);
-  }, [step, section, qIndex, isGamified]);
 
   useEffect(() => {
     if (step !== 'assessment' || popup) return;
@@ -1143,17 +1094,14 @@ function CandidateAssessment() {
         </header>
       )}
 
-      {/* Top Character Pop-up Reaction with Natural-Pace Lip-Sync (Gamified Mode Only) */}
+      {/* Top Character Pop-up Reaction (Gamified Mode Only) */}
       {isGamified && popup && (
         <div className="fixed top-24 left-1/2 z-50 w-[92%] max-w-md animate-pop-in">
           <div className="bg-white border-2 border-[#0D9488] rounded-2xl p-4 shadow-2xl flex items-center gap-4">
-            <CharacterAvatar char={popup.speaker} size="sm" speaking={true} />
+            <CharacterAvatar char={popup.speaker} size="sm" />
             <div>
-              <div className="text-xs font-bold text-[#0D9488] flex items-center gap-1.5">
-                <span>
-                  {popup.speaker.name} • {popup.speaker.role}
-                </span>
-                <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+              <div className="text-xs font-bold text-[#0D9488]">
+                {popup.speaker.name} • {popup.speaker.role}
               </div>
               <div className="text-sm font-medium text-[#2C2C2C] mt-0.5">
                 {popup.message}
@@ -1452,16 +1400,12 @@ function CandidateAssessment() {
         </main>
       )}
 
-      {/* 4. GAMIFIED WELCOME SCREEN (Priya Sharma with Lip-Sync) */}
+      {/* 4. GAMIFIED WELCOME SCREEN (Priya Sharma) */}
       {step === 'welcome' && (
         <main className="max-w-2xl mx-auto px-5 py-12">
           <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-md border border-slate-200">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-              <CharacterAvatar
-                char={CHARACTERS.priya}
-                size="lg"
-                speaking={introSpeaking}
-              />
+              <CharacterAvatar char={CHARACTERS.priya} size="lg" />
               <div>
                 <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-teal-50 text-[#0D9488] text-xs font-bold uppercase tracking-wide">
                   {CHARACTERS.priya.name} • {CHARACTERS.priya.role}
@@ -1543,7 +1487,6 @@ function CandidateAssessment() {
                     : CHARACTERS.rohanMarketing
                 }
                 size="sm"
-                speaking={introSpeaking}
               />
               <div>
                 <div className="text-xs font-bold text-[#4A90E2]">
