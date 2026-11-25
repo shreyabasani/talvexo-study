@@ -660,6 +660,12 @@ export const SURVEY_ITEMS = [
     text: "This experience gave me a positive impression of the organization's culture.",
   },
   {
+    id: 'attn_check',
+    section: 'Data Quality Check',
+    text: 'To confirm you are reading carefully, please select "4" for this statement.',
+    expectedValue: 4,
+  },
+  {
     id: 'q10',
     section: 'Clarity & Competence',
     text: 'The assessment gave me a clear idea of the types of data and scenarios I would handle in this job.',
