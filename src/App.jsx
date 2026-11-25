@@ -16,6 +16,8 @@ import {
   Check,
   Coins,
   Lightbulb,
+  Copy,
+  HelpCircle,
 } from 'lucide-react';
 import { supabase } from './supabaseClient';
 import { soundEngine } from './sound';
@@ -32,13 +34,18 @@ import priyaImg from '../Priya.jpeg';
 import rohanImg from '../Rohan.jpeg';
 import ananyaImg from '../Ananya.jpeg';
 
-const STORAGE_KEY = 'talvexo_assessment_progress_v2';
+const STORAGE_KEY = 'talvexo_assessment_progress_v3';
 const ADMIN_PASSWORD = 'Admin@2025';
 
 function formatTime(secs) {
   const m = Math.floor(Math.max(0, secs) / 60);
   const s = Math.max(0, secs) % 60;
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+function generateParticipantCode() {
+  const digits = Math.floor(1000 + Math.random() * 9000);
+  return `TVX-${digits}`;
 }
 
 /* Clean Spider-Verse Character JPEG Portrait */
@@ -99,7 +106,7 @@ function CssConfetti({ count = 24 }) {
   );
 }
 
-function MissionRoadmap({ currentSection }) {
+function MissionRoadmap({ currentSection, highlight = false }) {
   const stages = [
     { num: 1, label: 'Executive Briefs' },
     { num: 2, label: 'Analytics Terminal' },
@@ -107,7 +114,11 @@ function MissionRoadmap({ currentSection }) {
   ];
 
   return (
-    <div className="flex items-center justify-between max-w-xl mx-auto mt-2.5 pt-2 border-t border-slate-100">
+    <div
+      className={`flex items-center justify-between max-w-xl mx-auto mt-2.5 pt-2 border-t border-slate-100 rounded-lg px-2 transition ${
+        highlight ? 'ring-2 ring-[#0D9488] bg-teal-50/60' : ''
+      }`}
+    >
       {stages.map((st, idx) => {
         const done = currentSection > st.num;
         const active = currentSection === st.num;
@@ -165,10 +176,10 @@ function TimerPill({ seconds, isGamified }) {
   }
   return (
     <div
-      className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white font-semibold text-sm shadow-sm border-2 transition-colors ${pulse}`}
+      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white font-semibold text-xs sm:text-sm shadow-sm border-2 transition-colors ${pulse}`}
       style={{ borderColor: border, color: text }}
     >
-      <Clock className="w-4 h-4" />
+      <Clock className="w-4 h-4 shrink-0" />
       <span>{formatTime(seconds)}</span>
     </div>
   );
@@ -181,14 +192,14 @@ function DashboardView({ dashboard, isGamified }) {
     <div
       className={
         isGamified
-          ? 'bg-white rounded-2xl p-5 shadow-sm border border-slate-200 mb-6'
+          ? 'bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200 mb-6'
           : 'border border-slate-300 p-4 mb-6 bg-white'
       }
     >
       {isGamified && (
-        <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-3 pb-2 border-b border-slate-100">
           <span className="text-xs font-bold uppercase tracking-wider text-[#0D9488] flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5" />
+            <Sparkles className="w-3.5 h-3.5 shrink-0" />
             Talvexo Live Analytics Terminal
           </span>
           <span className="text-[11px] font-medium px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -209,7 +220,7 @@ function DashboardView({ dashboard, isGamified }) {
           >
             <div className="text-xs text-slate-500 font-medium">{kpi.label}</div>
             <div
-              className={`text-xl font-bold mt-1 ${
+              className={`text-lg sm:text-xl font-bold mt-1 ${
                 isGamified ? 'text-[#0D9488]' : 'text-[#2C2C2C]'
               }`}
             >
@@ -223,7 +234,7 @@ function DashboardView({ dashboard, isGamified }) {
         <div
           className={
             isGamified
-              ? 'bg-slate-50/70 border border-slate-200 rounded-xl p-4'
+              ? 'bg-slate-50/70 border border-slate-200 rounded-xl p-3.5 sm:p-4'
               : 'border border-slate-300 p-3'
           }
         >
@@ -235,10 +246,10 @@ function DashboardView({ dashboard, isGamified }) {
               const widthPct = Math.round((item.value / maxBar) * 100);
               return (
                 <div key={item.name} className="flex items-center gap-2 text-xs">
-                  <span className="w-16 font-medium text-slate-700 shrink-0">
+                  <span className="w-14 sm:w-16 font-medium text-slate-700 shrink-0 truncate">
                     {item.name}
                   </span>
-                  <div className="flex-1 bg-slate-200 h-5 rounded-md overflow-hidden">
+                  <div className="flex-1 bg-slate-200 h-5 rounded-md overflow-hidden min-w-0">
                     <div
                       className="h-full transition-all duration-500"
                       style={{
@@ -249,7 +260,7 @@ function DashboardView({ dashboard, isGamified }) {
                       }}
                     />
                   </div>
-                  <span className="w-14 text-right font-semibold text-slate-800">
+                  <span className="w-12 sm:w-14 text-right font-semibold text-slate-800 shrink-0">
                     ₹{item.value}L
                   </span>
                 </div>
@@ -261,7 +272,7 @@ function DashboardView({ dashboard, isGamified }) {
         <div
           className={
             isGamified
-              ? 'bg-slate-50/70 border border-slate-200 rounded-xl p-4'
+              ? 'bg-slate-50/70 border border-slate-200 rounded-xl p-3.5 sm:p-4'
               : 'border border-slate-300 p-3'
           }
         >
@@ -274,11 +285,11 @@ function DashboardView({ dashboard, isGamified }) {
                 {dashboard.segments.map((seg) => (
                   <div
                     key={seg.name}
-                    className="flex items-center justify-between text-xs border-b border-slate-200 pb-1.5"
+                    className="flex items-center justify-between text-xs border-b border-slate-200 pb-1.5 gap-2"
                   >
                     <span className="font-medium text-slate-700">{seg.name}</span>
                     <span
-                      className={`font-bold px-2.5 py-0.5 rounded-full ${
+                      className={`font-bold px-2.5 py-0.5 rounded-full shrink-0 ${
                         isGamified
                           ? 'bg-teal-100 text-teal-800'
                           : 'bg-slate-100 text-slate-800'
@@ -295,23 +306,25 @@ function DashboardView({ dashboard, isGamified }) {
               <div className="text-sm font-semibold mb-2 text-[#2C2C2C]">
                 {dashboard.pnlTitle}
               </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-xs text-left">
+              <div className="overflow-x-auto -mx-1 px-1">
+                <table className="w-full min-w-[290px] text-xs text-left">
                   <thead>
                     <tr className="border-b border-slate-300 text-slate-500">
-                      <th className="py-1">Metric</th>
-                      <th className="py-1">Q3</th>
-                      <th className="py-1">Q4</th>
+                      <th className="py-1.5 pr-2">Metric</th>
+                      <th className="py-1.5 px-2 whitespace-nowrap">Q3</th>
+                      <th className="py-1.5 pl-2 whitespace-nowrap">Q4</th>
                     </tr>
                   </thead>
                   <tbody>
                     {dashboard.pnlRows.map((row) => (
                       <tr key={row.metric} className="border-b border-slate-200">
-                        <td className="py-1.5 font-medium text-slate-700">
+                        <td className="py-1.5 pr-2 font-medium text-slate-700">
                           {row.metric}
                         </td>
-                        <td className="py-1.5 text-slate-600">{row.q3}</td>
-                        <td className="py-1.5 font-semibold text-slate-800">
+                        <td className="py-1.5 px-2 text-slate-600 whitespace-nowrap">
+                          {row.q3}
+                        </td>
+                        <td className="py-1.5 pl-2 font-semibold text-slate-800 whitespace-nowrap">
                           {row.q4}
                         </td>
                       </tr>
@@ -368,6 +381,10 @@ function CandidateAssessment() {
     params.get('mode') === 'traditional' ? 'Traditional' : 'Gamified'
   );
   const [randomDecimal, setRandomDecimal] = useState(0.25);
+  const [participantCode, setParticipantCode] = useState(() =>
+    generateParticipantCode()
+  );
+  const [copiedCode, setCopiedCode] = useState(false);
 
   const [section, setSection] = useState(1);
   const [qIndex, setQIndex] = useState(0);
@@ -375,6 +392,14 @@ function CandidateAssessment() {
   const [answers, setAnswers] = useState({ 1: {}, 2: {}, 3: {} });
   const [sectionTimes, setSectionTimes] = useState({ 1: 0, 2: 0, 3: 0 });
   const [tradSelected, setTradSelected] = useState('');
+
+  // Telemetry: Tab Switches & Per-Question Response Timings
+  const [tabSwitches, setTabSwitches] = useState(0);
+  const [questionTimings, setQuestionTimings] = useState({});
+  const questionStartRef = useRef(Date.now());
+
+  // 2-Step Interactive "How to Play" Tour on First Gamified Question
+  const [tourStep, setTourStep] = useState(0); // 0 = inactive, 1 = Intel Tokens, 2 = Mission Roadmap
 
   const [tokensLeft, setTokensLeft] = useState(INITIAL_INTEL_TOKENS);
   const [unlockedClues, setUnlockedClues] = useState({});
@@ -434,8 +459,28 @@ function CandidateAssessment() {
     }
   }, []);
 
+  // Track tab-switches / visibility changes during active assessment
   useEffect(() => {
-    if (step !== 'assessment' || popup) return;
+    if (step !== 'assessment') return;
+    function handleVisibilityChange() {
+      if (document.hidden) {
+        setTabSwitches((prev) => prev + 1);
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () =>
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [step]);
+
+  // Reset per-question timer whenever a new question renders
+  useEffect(() => {
+    if (step === 'assessment') {
+      questionStartRef.current = Date.now();
+    }
+  }, [step, section, qIndex]);
+
+  useEffect(() => {
+    if (step !== 'assessment' || popup || tourStep > 0) return;
     function onKeyDown(e) {
       const key = e.key.toUpperCase();
       if (key === 'A' || key === 'B' || key === 'C') {
@@ -452,7 +497,7 @@ function CandidateAssessment() {
     }
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [step, popup, currentQuestions, qIndex, isGamified]);
+  }, [step, popup, tourStep, currentQuestions, qIndex, isGamified]);
 
   useEffect(() => {
     if (isPreview) return;
@@ -479,11 +524,14 @@ function CandidateAssessment() {
             form,
             mode,
             randomDecimal,
+            participantCode,
             section,
             qIndex,
             timeLeft,
             answers,
             sectionTimes,
+            tabSwitches,
+            questionTimings,
             tokensLeft,
             unlockedClues,
             step: 'assessment',
@@ -501,17 +549,20 @@ function CandidateAssessment() {
     form,
     mode,
     randomDecimal,
+    participantCode,
     section,
     qIndex,
     timeLeft,
     answers,
     sectionTimes,
+    tabSwitches,
+    questionTimings,
     tokensLeft,
     unlockedClues,
   ]);
 
   useEffect(() => {
-    if (step !== 'assessment' || popup) return;
+    if (step !== 'assessment' || popup || tourStep > 0) return;
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev === 31 && isGamified && !warnedRef.current) {
@@ -527,7 +578,7 @@ function CandidateAssessment() {
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [step, section, popup, isGamified]);
+  }, [step, section, popup, tourStep, isGamified]);
 
   useEffect(() => {
     if (step !== 'buffer') return;
@@ -543,6 +594,16 @@ function CandidateAssessment() {
     }, 1000);
     return () => clearInterval(interval);
   }, [step]);
+
+  function recordQuestionDuration(qId) {
+    const elapsedSec = Number(
+      ((Date.now() - questionStartRef.current) / 1000).toFixed(1)
+    );
+    setQuestionTimings((prev) => ({
+      ...prev,
+      [qId]: (prev[qId] || 0) + elapsedSec,
+    }));
+  }
 
   function toggleMute() {
     const next = !muted;
@@ -560,6 +621,7 @@ function CandidateAssessment() {
   function handlePreviewJump(target) {
     setPopup(null);
     setTradSelected('');
+    setTourStep(0);
     if (target === 'sec1') {
       setSection(1);
       setQIndex(0);
@@ -592,11 +654,16 @@ function CandidateAssessment() {
     setForm(resumeOffer.form);
     setMode(resumeOffer.mode);
     setRandomDecimal(resumeOffer.randomDecimal);
+    if (resumeOffer.participantCode) {
+      setParticipantCode(resumeOffer.participantCode);
+    }
     setSection(resumeOffer.section);
     setQIndex(resumeOffer.qIndex);
     setTimeLeft(resumeOffer.timeLeft);
     setAnswers(resumeOffer.answers);
     setSectionTimes(resumeOffer.sectionTimes || { 1: 0, 2: 0, 3: 0 });
+    setTabSwitches(resumeOffer.tabSwitches || 0);
+    setQuestionTimings(resumeOffer.questionTimings || {});
     setTokensLeft(
       typeof resumeOffer.tokensLeft === 'number'
         ? resumeOffer.tokensLeft
@@ -648,12 +715,15 @@ function CandidateAssessment() {
     const assigned = rand < 0.5 ? 'Gamified' : 'Traditional';
     setRandomDecimal(rand);
     setMode(assigned);
+    setParticipantCode(generateParticipantCode());
 
     setSection(1);
     setQIndex(0);
     setTimeLeft(SECTION_TIMERS[1]);
     setAnswers({ 1: {}, 2: {}, 3: {} });
     setTradSelected('');
+    setTabSwitches(0);
+    setQuestionTimings({});
     setTokensLeft(INITIAL_INTEL_TOKENS);
     setUnlockedClues({});
 
@@ -701,8 +771,10 @@ function CandidateAssessment() {
   }
 
   function handleGamifiedAnswer(opt) {
-    if (popup) return;
+    if (popup || tourStep > 0) return;
     const q = currentQuestions[qIndex];
+    recordQuestionDuration(q.id);
+
     const updated = {
       ...answers,
       [section]: {
@@ -748,6 +820,8 @@ function CandidateAssessment() {
   function handleTraditionalNext() {
     if (!tradSelected) return;
     const q = currentQuestions[qIndex];
+    recordQuestionDuration(q.id);
+
     const opt = q.options.find((o) => o.id === tradSelected);
     const updated = {
       ...answers,
@@ -817,6 +891,7 @@ function CandidateAssessment() {
     const clarityCompAvg = Number(
       ((survey.q10 + survey.q11 + survey.q12) / 3).toFixed(2)
     );
+    const attnPassed = survey.attn_check === 4;
 
     const isMobile =
       typeof navigator !== 'undefined' &&
@@ -825,6 +900,7 @@ function CandidateAssessment() {
     const tokensSpent = isGamified ? INITIAL_INTEL_TOKENS - tokensLeft : 0;
 
     const payload = {
+      participant_code: participantCode,
       full_name: form.full_name,
       college_name: form.college_name,
       email: form.email,
@@ -848,9 +924,12 @@ function CandidateAssessment() {
       section1_answers: answers[1],
       section2_answers: answers[2],
       section3_answers: answers[3],
+      tab_switches: tabSwitches,
+      question_timings: questionTimings,
       tokens_used: tokensSpent,
       manipulation_check: mcFormatScore,
       manipulation_check_tokens: mcTokensAnswer,
+      attention_check_passed: attnPassed,
       q1: survey.q1,
       q2: survey.q2,
       q3: survey.q3,
@@ -891,6 +970,14 @@ function CandidateAssessment() {
       setStep('results');
     } else {
       setStep('debrief');
+    }
+  }
+
+  function handleCopyCode() {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(participantCode);
+      setCopiedCode(true);
+      setTimeout(() => setCopiedCode(false), 2500);
     }
   }
 
@@ -1020,43 +1107,45 @@ function CandidateAssessment() {
         step === 'assessment' ||
         step === 'badge_transition') && (
         <header
-          className={`sticky top-0 z-30 px-4 py-3 border-b ${
+          className={`sticky top-0 z-30 px-3 sm:px-4 py-3 border-b ${
             isGamified
               ? 'bg-white/95 backdrop-blur border-slate-200 shadow-xs'
               : 'bg-white border-slate-200'
           }`}
         >
-          <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2.5">
+          <div className="max-w-4xl mx-auto flex flex-wrap items-center justify-between gap-2.5">
+            <div className="flex items-center gap-2.5 min-w-0">
               {isGamified && (
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#4A90E2] to-[#0D9488] text-white font-bold text-sm flex items-center justify-center shadow-2xs">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#4A90E2] to-[#0D9488] text-white font-bold text-sm flex items-center justify-center shadow-2xs shrink-0">
                   T
                 </div>
               )}
-              <div>
-                <div className="text-xs text-slate-500 font-medium">
+              <div className="truncate">
+                <div className="text-xs text-slate-500 font-medium truncate">
                   {form.full_name}
                 </div>
-                <div className="text-sm font-bold text-[#2C2C2C]">
+                <div className="text-xs sm:text-sm font-bold text-[#2C2C2C] truncate">
                   Role: {roleTitle}
                 </div>
               </div>
             </div>
 
             {step === 'assessment' && (
-              <div className="flex items-center gap-2.5 sm:gap-3">
+              <div className="flex items-center gap-2 sm:gap-3">
                 {isGamified && (
                   <div
                     title="Limited resource: spend 1 token on any question to reveal an analyst clue"
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs sm:text-sm font-bold border-2 ${
-                      tokensLeft > 0
+                    className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs sm:text-sm font-bold border-2 transition ${
+                      tourStep === 1
+                        ? 'ring-4 ring-amber-300 scale-105 bg-amber-100 border-amber-500 text-amber-950'
+                        : tokensLeft > 0
                         ? 'bg-amber-50 border-amber-400 text-amber-900'
                         : 'bg-slate-100 border-slate-300 text-slate-500'
                     }`}
                   >
-                    <Coins className="w-4 h-4 text-amber-500" />
+                    <Coins className="w-4 h-4 text-amber-500 shrink-0" />
                     <span>
-                      Intel Tokens: {tokensLeft}/{INITIAL_INTEL_TOKENS}
+                      Tokens: {tokensLeft}/{INITIAL_INTEL_TOKENS}
                     </span>
                   </div>
                 )}
@@ -1065,7 +1154,7 @@ function CandidateAssessment() {
                   <button
                     onClick={toggleMute}
                     title={muted ? 'Unmute sound' : 'Mute sound'}
-                    className="p-2 rounded-full border border-slate-200 text-slate-600 hover:bg-slate-100"
+                    className="p-2 rounded-full border border-slate-200 text-slate-600 hover:bg-slate-100 shrink-0"
                   >
                     {muted ? (
                       <VolumeX className="w-4 h-4" />
@@ -1083,7 +1172,10 @@ function CandidateAssessment() {
           {step === 'assessment' && (
             <div className="max-w-4xl mx-auto">
               {isGamified ? (
-                <MissionRoadmap currentSection={section} />
+                <MissionRoadmap
+                  currentSection={section}
+                  highlight={tourStep === 2}
+                />
               ) : (
                 <div className="text-xs font-medium text-slate-600 mt-2">
                   Section {section} of 3
@@ -1092,6 +1184,52 @@ function CandidateAssessment() {
             </div>
           )}
         </header>
+      )}
+
+      {/* Interactive 2-Step "How to Play" Guided Tour Banner */}
+      {isGamified && step === 'assessment' && tourStep > 0 && (
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-4">
+          <div className="bg-slate-900 text-white rounded-2xl p-4 shadow-xl border border-teal-400 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <HelpCircle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+              <div className="text-xs sm:text-sm leading-relaxed">
+                {tourStep === 1 ? (
+                  <>
+                    <span className="font-bold text-amber-300">
+                      Quick Tip (1/2) — Intel Tokens:{' '}
+                    </span>
+                    You have <strong>4 Intel Tokens</strong> for the entire
+                    simulation. Spend 1 token on any tough question to reveal an
+                    analyst clue!
+                  </>
+                ) : (
+                  <>
+                    <span className="font-bold text-teal-300">
+                      Quick Tip (2/2) — Mission Roadmap:{' '}
+                    </span>
+                    Track your progress across all 3 business rounds above.
+                    Watch the timer pill—each round has its own clock!
+                  </>
+                )}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                soundEngine.playClick();
+                if (tourStep === 1) {
+                  setTourStep(2);
+                } else {
+                  setTourStep(0);
+                  questionStartRef.current = Date.now();
+                }
+              }}
+              className="px-4 py-2 rounded-lg bg-[#0D9488] hover:bg-teal-500 text-white text-xs font-bold shrink-0 self-end sm:self-center"
+            >
+              {tourStep === 1 ? 'Next Tip →' : 'Got It, Start!'}
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Top Character Pop-up Reaction (Gamified Mode Only) */}
@@ -1463,6 +1601,7 @@ function CandidateAssessment() {
             <button
               onClick={() => {
                 soundEngine.playClick();
+                setTourStep(1);
                 setStep('assessment');
               }}
               className="mt-6 w-full py-3.5 rounded-xl bg-gradient-to-r from-[#4A90E2] to-[#0D9488] hover:opacity-95 text-white font-semibold text-sm shadow-md transition"
@@ -1475,7 +1614,7 @@ function CandidateAssessment() {
 
       {/* 5. ACTIVE ASSESSMENT SCREEN (BOTH MODES) */}
       {step === 'assessment' && (
-        <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+        <main className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
           {isGamified && qIndex === 0 && (
             <div className="bg-white rounded-2xl p-4 mb-6 border border-slate-200 shadow-xs flex items-center gap-4">
               <CharacterAvatar
@@ -1520,12 +1659,12 @@ function CandidateAssessment() {
             <div
               className={
                 isGamified
-                  ? 'bg-white rounded-2xl p-6 sm:p-8 shadow-md border border-slate-200'
-                  : 'bg-white border border-slate-300 p-6'
+                  ? 'bg-white rounded-2xl p-5 sm:p-8 shadow-md border border-slate-200'
+                  : 'bg-white border border-slate-300 p-5 sm:p-6'
               }
             >
               {isGamified && section === 3 && (
-                <div className="mb-4 p-3 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-between gap-2">
+                <div className="mb-4 p-3 rounded-xl bg-amber-50 border border-amber-200 flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2 text-xs font-bold text-amber-900">
                     <MailWarning className="w-4 h-4 text-amber-600 shrink-0" />
                     <span>
@@ -1538,7 +1677,7 @@ function CandidateAssessment() {
                 </div>
               )}
 
-              <div className="flex items-center justify-between text-xs text-slate-500 mb-2">
+              <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500 mb-2">
                 <span className="font-semibold uppercase tracking-wide">
                   {bank.sectionTitles[section]}
                 </span>
@@ -1587,7 +1726,9 @@ function CandidateAssessment() {
                   ) : (
                     <button
                       type="button"
-                      disabled={tokensLeft <= 0 || Boolean(popup)}
+                      disabled={
+                        tokensLeft <= 0 || Boolean(popup) || tourStep > 0
+                      }
                       onClick={() =>
                         handleUnlockClue(currentQuestions[qIndex].id)
                       }
@@ -1597,7 +1738,7 @@ function CandidateAssessment() {
                           : 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed'
                       }`}
                     >
-                      <Coins className="w-3.5 h-3.5 text-amber-600" />
+                      <Coins className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                       {tokensLeft > 0
                         ? `Spend 1 Intel Token to Reveal Clue (${tokensLeft} left)`
                         : '0 Intel Tokens Remaining'}
@@ -1618,7 +1759,7 @@ function CandidateAssessment() {
                     <button
                       key={opt.id}
                       type="button"
-                      disabled={Boolean(popup)}
+                      disabled={Boolean(popup) || tourStep > 0}
                       onClick={() => {
                         if (isGamified) {
                           handleGamifiedAnswer(opt);
@@ -1626,7 +1767,7 @@ function CandidateAssessment() {
                           setTradSelected(opt.id);
                         }
                       }}
-                      className={`w-full text-left p-4 transition-all flex items-start gap-3.5 ${
+                      className={`w-full text-left p-3.5 sm:p-4 transition-all flex items-start gap-3 sm:gap-3.5 ${
                         isGamified
                           ? `rounded-xl border-2 hover:-translate-y-0.5 hover:shadow-sm ${
                               isPicked
@@ -1977,7 +2118,7 @@ function CandidateAssessment() {
         </main>
       )}
 
-      {/* 10. DEBRIEF & THANK YOU SCREEN */}
+      {/* 10. DEBRIEF & THANK YOU SCREEN WITH COPYABLE PARTICIPANT REFERENCE ID */}
       {step === 'debrief' && (
         <main className="max-w-xl mx-auto px-5 py-16">
           <div className="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 shadow-xs">
@@ -1985,6 +2126,27 @@ function CandidateAssessment() {
               <CheckCircle2 className="w-6 h-6" />
               <span>Submission Recorded</span>
             </div>
+
+            {/* Participant Reference Code Card */}
+            <div className="my-5 p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-3">
+              <div>
+                <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                  Participant Completion Code
+                </div>
+                <div className="text-xl font-mono font-bold text-[#2C2C2C] mt-0.5">
+                  {participantCode}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleCopyCode}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-xs font-semibold text-slate-700 transition"
+              >
+                <Copy className="w-3.5 h-3.5" />
+                {copiedCode ? 'Copied!' : 'Copy Code'}
+              </button>
+            </div>
+
             <div className="space-y-3 text-sm text-slate-600 leading-relaxed">
               <p>
                 Thank you for participating in this research study. Your
@@ -2090,30 +2252,139 @@ function AdminPanel() {
       ? (arr.reduce((s, r) => s + Number(r[key] || 0), 0) / arr.length).toFixed(2)
       : '0.00';
 
-  function exportCSV() {
+  // SPSS / Jamovi / R Ready Numeric Export
+  function exportSPSSCSV() {
     if (!filtered.length) return;
-    const headers = Object.keys(filtered[0]);
-    const csvLines = [
-      headers.join(','),
-      ...filtered.map((row) =>
-        headers
-          .map((h) => {
-            const val =
-              typeof row[h] === 'object' && row[h] !== null
-                ? JSON.stringify(row[h])
-                : row[h] ?? '';
-            return `"${String(val).replace(/"/g, '""')}"`;
-          })
-          .join(',')
-      ),
+    const spssHeaders = [
+      'participant_code',
+      'submitted_at',
+      'full_name',
+      'college_name',
+      'email',
+      'gender',
+      'gender_code',
+      'age',
+      'gaming_frequency',
+      'gaming_type',
+      'prior_gamified_experience',
+      'prior_exp_code',
+      'stream',
+      'stream_code',
+      'mode_assigned',
+      'mode_code',
+      'random_decimal',
+      'device_type',
+      'section1_score',
+      'section2_score',
+      'section3_score',
+      'total_score',
+      'section1_time_seconds',
+      'section2_time_seconds',
+      'section3_time_seconds',
+      'tokens_used',
+      'tab_switches',
+      'manipulation_check_format',
+      'manipulation_check_tokens',
+      'mc_tokens_code',
+      'attention_check_passed',
+      'q1',
+      'q2',
+      'q3',
+      'q4',
+      'q5',
+      'q6',
+      'q7',
+      'q8',
+      'q9',
+      'q10',
+      'q11',
+      'q12',
+      'engagement_avg',
+      'fairness_avg',
+      'attractiveness_avg',
+      'clarity_competence_avg',
+      'performance_badge_tier',
+      'open_feedback',
+      'question_timings',
     ];
+
+    const csvLines = [
+      spssHeaders.join(','),
+      ...filtered.map((r) => {
+        const mapped = {
+          participant_code: r.participant_code ?? '',
+          submitted_at: r.submitted_at ?? '',
+          full_name: r.full_name ?? '',
+          college_name: r.college_name ?? '',
+          email: r.email ?? '',
+          gender: r.gender ?? '',
+          gender_code:
+            r.gender === 'Male' ? 1 : r.gender === 'Female' ? 2 : 3,
+          age: r.age ?? '',
+          gaming_frequency: r.gaming_frequency ?? '',
+          gaming_type: r.gaming_type ?? '',
+          prior_gamified_experience: r.prior_gamified_experience ?? '',
+          prior_exp_code: r.prior_gamified_experience === 'Yes' ? 1 : 0,
+          stream: r.stream ?? '',
+          stream_code: r.stream === 'Finance' ? 2 : 1,
+          mode_assigned: r.mode_assigned ?? '',
+          mode_code: r.mode_assigned === 'Gamified' ? 1 : 0,
+          random_decimal: r.random_decimal ?? '',
+          device_type: r.device_type ?? '',
+          section1_score: r.section1_score ?? 0,
+          section2_score: r.section2_score ?? 0,
+          section3_score: r.section3_score ?? 0,
+          total_score: r.total_score ?? 0,
+          section1_time_seconds: r.section1_time_seconds ?? 0,
+          section2_time_seconds: r.section2_time_seconds ?? 0,
+          section3_time_seconds: r.section3_time_seconds ?? 0,
+          tokens_used: r.tokens_used ?? 0,
+          tab_switches: r.tab_switches ?? 0,
+          manipulation_check_format: r.manipulation_check ?? '',
+          manipulation_check_tokens: r.manipulation_check_tokens ?? '',
+          mc_tokens_code: r.manipulation_check_tokens === 'Yes' ? 1 : 0,
+          attention_check_passed:
+            r.attention_check_passed === true
+              ? 1
+              : r.attention_check_passed === false
+              ? 0
+              : '',
+          q1: r.q1 ?? '',
+          q2: r.q2 ?? '',
+          q3: r.q3 ?? '',
+          q4: r.q4 ?? '',
+          q5: r.q5 ?? '',
+          q6: r.q6 ?? '',
+          q7: r.q7 ?? '',
+          q8: r.q8 ?? '',
+          q9: r.q9 ?? '',
+          q10: r.q10 ?? '',
+          q11: r.q11 ?? '',
+          q12: r.q12 ?? '',
+          engagement_avg: r.engagement_avg ?? '',
+          fairness_avg: r.fairness_avg ?? '',
+          attractiveness_avg: r.attractiveness_avg ?? '',
+          clarity_competence_avg: r.clarity_competence_avg ?? '',
+          performance_badge_tier: r.performance_badge_tier ?? '',
+          open_feedback: r.open_feedback ?? '',
+          question_timings: r.question_timings
+            ? JSON.stringify(r.question_timings)
+            : '',
+        };
+
+        return spssHeaders
+          .map((h) => `"${String(mapped[h] ?? '').replace(/"/g, '""')}"`)
+          .join(',');
+      }),
+    ];
+
     const blob = new Blob([csvLines.join('\n')], {
       type: 'text/csv;charset=utf-8;',
     });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `talvexo_research_data_${new Date()
+    a.download = `talvexo_SPSS_ready_${new Date()
       .toISOString()
       .slice(0, 10)}.csv`;
     a.click();
@@ -2202,12 +2473,12 @@ function AdminPanel() {
           </div>
 
           <button
-            onClick={exportCSV}
+            onClick={exportSPSSCSV}
             disabled={!filtered.length}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#0D9488] text-white text-xs font-semibold disabled:opacity-40"
           >
             <Download className="w-4 h-4" />
-            Export SPSS / Excel CSV ({filtered.length})
+            Export SPSS-Ready CSV ({filtered.length})
           </button>
         </div>
 
@@ -2224,28 +2495,27 @@ function AdminPanel() {
             <table className="w-full text-xs text-left">
               <thead className="bg-slate-50 border-b border-slate-200 text-slate-600">
                 <tr>
+                  <th className="p-3">Ref ID</th>
                   <th className="p-3">Name</th>
-                  <th className="p-3">College</th>
-                  <th className="p-3">Stream / Role</th>
+                  <th className="p-3">Stream</th>
                   <th className="p-3">Mode</th>
-                  <th className="p-3">Score (/30)</th>
+                  <th className="p-3">Score</th>
                   <th className="p-3">Tokens</th>
+                  <th className="p-3">Tabs</th>
+                  <th className="p-3">Attn</th>
                   <th className="p-3">Enjoy</th>
                   <th className="p-3">Fair</th>
-                  <th className="p-3">Attract</th>
-                  <th className="p-3">Clarity</th>
-                  <th className="p-3">MC1 / MC2</th>
                   <th className="p-3">Tier</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((r) => (
                   <tr key={r.id} className="border-b border-slate-100">
-                    <td className="p-3 font-medium">{r.full_name}</td>
-                    <td className="p-3">{r.college_name}</td>
-                    <td className="p-3">
-                      {r.stream} ({r.role_title})
+                    <td className="p-3 font-mono font-semibold text-slate-600">
+                      {r.participant_code ?? '-'}
                     </td>
+                    <td className="p-3 font-medium">{r.full_name}</td>
+                    <td className="p-3">{r.stream}</td>
                     <td className="p-3">
                       <span
                         className={`px-2 py-0.5 rounded font-semibold ${
@@ -2257,16 +2527,18 @@ function AdminPanel() {
                         {r.mode_assigned}
                       </span>
                     </td>
-                    <td className="p-3 font-bold">{r.total_score}</td>
+                    <td className="p-3 font-bold">{r.total_score}/30</td>
                     <td className="p-3">{r.tokens_used ?? 0}/4</td>
+                    <td className="p-3">{r.tab_switches ?? 0}</td>
+                    <td className="p-3">
+                      {r.attention_check_passed === true
+                        ? 'Pass'
+                        : r.attention_check_passed === false
+                        ? 'Fail'
+                        : '-'}
+                    </td>
                     <td className="p-3">{r.engagement_avg}</td>
                     <td className="p-3">{r.fairness_avg}</td>
-                    <td className="p-3">{r.attractiveness_avg}</td>
-                    <td className="p-3">{r.clarity_competence_avg ?? '-'}</td>
-                    <td className="p-3">
-                      {r.manipulation_check ?? '-'} /{' '}
-                      {r.manipulation_check_tokens ?? '-'}
-                    </td>
                     <td className="p-3">{r.performance_badge_tier}</td>
                   </tr>
                 ))}
