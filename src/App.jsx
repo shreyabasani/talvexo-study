@@ -34,7 +34,6 @@ function formatTime(secs) {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
-/* Custom Inline Vector Character Portraits (Zero External Assets Needed) */
 function CharacterAvatar({ char, size = 'md' }) {
   const dim = size === 'sm' ? 'w-14 h-14' : 'w-20 h-20';
   const id = char.name;
@@ -45,18 +44,12 @@ function CharacterAvatar({ char, size = 'md' }) {
         className={`${dim} rounded-2xl overflow-hidden shadow-md border-2 border-teal-200 bg-gradient-to-b from-teal-50 to-slate-100 shrink-0`}
       >
         <svg viewBox="0 0 100 100" className="w-full h-full">
-          {/* Hair back */}
           <path d="M22 42 C20 20, 80 20, 78 42 L82 78 L18 78 Z" fill="#1E293B" />
-          {/* Navy Blazer */}
           <path d="M16 98 C18 74, 34 68, 50 68 C66 68, 82 74, 84 98 Z" fill="#1E3A8A" />
-          {/* Blouse */}
           <path d="M38 68 L50 86 L62 68 Z" fill="#F8FAFC" />
-          {/* Neck & Face */}
           <rect x="44" y="56" width="12" height="14" rx="5" fill="#E0A98C" />
           <ellipse cx="50" cy="43" rx="17" ry="20" fill="#EBB497" />
-          {/* Front Hair */}
           <path d="M33 38 C34 23, 66 23, 67 38 C63 29, 39 29, 33 38 Z" fill="#0F172A" />
-          {/* Eyes & Smile */}
           <circle cx="43.5" cy="42" r="2.2" fill="#1E293B" />
           <circle cx="56.5" cy="42" r="2.2" fill="#1E293B" />
           <circle cx="50" cy="36" r="1.2" fill="#DC2626" />
@@ -78,18 +71,14 @@ function CharacterAvatar({ char, size = 'md' }) {
         className={`${dim} rounded-2xl overflow-hidden shadow-md border-2 border-blue-200 bg-gradient-to-b from-blue-50 to-slate-100 shrink-0`}
       >
         <svg viewBox="0 0 100 100" className="w-full h-full">
-          {/* Dark Vest & Light Blue Shirt */}
           <path d="M15 98 C18 74, 34 68, 50 68 C66 68, 82 74, 85 98 Z" fill="#1E293B" />
           <path d="M36 68 L50 92 L64 68 Z" fill="#BAE6FD" />
-          {/* Neck & Face */}
           <rect x="43" y="56" width="14" height="14" rx="5" fill="#D69E7E" />
           <ellipse cx="50" cy="43" rx="17" ry="20" fill="#E2AA8B" />
-          {/* Styled Hair */}
           <path
             d="M32 39 C31 20, 69 18, 68 39 C65 28, 37 28, 32 39 Z"
             fill="#0F172A"
           />
-          {/* Subtle Beard & Smile */}
           <path
             d="M35 47 C36 60, 64 60, 65 47 C62 56, 38 56, 35 47 Z"
             fill="#334155"
@@ -114,16 +103,12 @@ function CharacterAvatar({ char, size = 'md' }) {
       className={`${dim} rounded-2xl overflow-hidden shadow-md border-2 border-amber-200 bg-gradient-to-b from-amber-50 to-slate-100 shrink-0`}
     >
       <svg viewBox="0 0 100 100" className="w-full h-full">
-        {/* Bun & Hair */}
         <circle cx="50" cy="21" r="11" fill="#1E293B" />
-        {/* Maroon Blazer */}
         <path d="M16 98 C18 74, 34 68, 50 68 C66 68, 82 74, 84 98 Z" fill="#881337" />
         <path d="M40 68 L50 85 L60 68 Z" fill="#FEF3C7" />
-        {/* Neck & Face */}
         <rect x="44" y="56" width="12" height="14" rx="5" fill="#DDA384" />
         <ellipse cx="50" cy="43" rx="17" ry="20" fill="#E8B092" />
         <path d="M33 38 C34 23, 66 23, 67 38 C61 29, 39 29, 33 38 Z" fill="#0F172A" />
-        {/* Glasses */}
         <rect
           x="37"
           y="38"
@@ -159,7 +144,6 @@ function CharacterAvatar({ char, size = 'md' }) {
   );
 }
 
-/* Pure CSS Confetti Overlay */
 function CssConfetti({ count = 24 }) {
   const colors = ['#4A90E2', '#0D9488', '#F59E0B', '#FFD93D', '#38BDF8'];
   return (
@@ -186,7 +170,6 @@ function CssConfetti({ count = 24 }) {
   );
 }
 
-/* 3-Stage Corporate Mission Roadmap (Gamified Header) */
 function MissionRoadmap({ currentSection }) {
   const stages = [
     { num: 1, label: 'Aptitude' },
@@ -470,7 +453,9 @@ function CandidateAssessment() {
 
   const [bufferLeft, setBufferLeft] = useState(10);
 
-  const [mcScore, setMcScore] = useState(0);
+  // Manipulation checks & Survey State
+  const [mcFormatScore, setMcFormatScore] = useState(0);
+  const [mcTokensAnswer, setMcTokensAnswer] = useState('');
   const [survey, setSurvey] = useState({});
   const [openFeedback, setOpenFeedback] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -489,7 +474,6 @@ function CandidateAssessment() {
       ? bank.section2
       : bank.section3;
 
-  // Inject confetti CSS keyframes once
   useEffect(() => {
     const styleId = 'talvexo-confetti-style';
     if (!document.getElementById(styleId)) {
@@ -518,7 +502,6 @@ function CandidateAssessment() {
     }
   }, []);
 
-  // Keyboard shortcuts (A, B, C) during active assessment
   useEffect(() => {
     if (step !== 'assessment' || popup) return;
     function onKeyDown(e) {
@@ -857,7 +840,10 @@ function CandidateAssessment() {
     return { s1, s2, s3, total: s1 + s2 + s3 };
   }
 
-  const allSurveyAnswered = SURVEY_ITEMS.every((item) => survey[item.id] > 0);
+  const allSurveyAnswered =
+    mcFormatScore > 0 &&
+    mcTokensAnswer !== '' &&
+    SURVEY_ITEMS.every((item) => survey[item.id] > 0);
 
   async function handleSurveySubmit(e) {
     e.preventDefault();
@@ -876,6 +862,9 @@ function CandidateAssessment() {
     );
     const attrAvg = Number(
       ((survey.q7 + survey.q8 + survey.q9) / 3).toFixed(2)
+    );
+    const clarityCompAvg = Number(
+      ((survey.q10 + survey.q11 + survey.q12) / 3).toFixed(2)
     );
 
     const isMobile =
@@ -906,7 +895,8 @@ function CandidateAssessment() {
       section1_answers: answers[1],
       section2_answers: answers[2],
       section3_answers: answers[3],
-      manipulation_check: mcScore || null,
+      manipulation_check: mcFormatScore,
+      manipulation_check_tokens: mcTokensAnswer,
       q1: survey.q1,
       q2: survey.q2,
       q3: survey.q3,
@@ -916,13 +906,17 @@ function CandidateAssessment() {
       q7: survey.q7,
       q8: survey.q8,
       q9: survey.q9,
-      m1: survey.m1,
-      m2: survey.m2,
-      m3: survey.m3,
+      q10: survey.q10,
+      q11: survey.q11,
+      q12: survey.q12,
+      m1: survey.q10,
+      m2: survey.q11,
+      m3: survey.q12,
       open_feedback: openFeedback.trim() || null,
       engagement_avg: engAvg,
       fairness_avg: fairAvg,
       attractiveness_avg: attrAvg,
+      clarity_competence_avg: clarityCompAvg,
       performance_badge_tier: badgeInfo.tier,
     };
 
@@ -1038,10 +1032,10 @@ function CandidateAssessment() {
                 }
                 className="bg-slate-800 border border-slate-600 rounded px-2.5 py-1 font-semibold text-teal-300"
               >
-                <option value={28}>Simulate: Apex Performer (28/30)</option>
-                <option value={21}>Simulate: Rising Talent (21/30)</option>
-                <option value={14}>Simulate: Developing Leader (14/30)</option>
-                <option value={6}>Simulate: Bold Starter (6/30)</option>
+                <option value={28}>Simulate: Top Strategist (28/30)</option>
+                <option value={21}>Simulate: Skilled Analyst (21/30)</option>
+                <option value={14}>Simulate: Developing Trainee (14/30)</option>
+                <option value={6}>Simulate: Needs Practice (6/30)</option>
               </select>
             )}
 
@@ -1532,12 +1526,13 @@ function CandidateAssessment() {
                   : 'bg-white border border-slate-300 p-6'
               }
             >
-              {/* Section 3 Priority Memo Header (Gamified Mode Only) */}
               {isGamified && section === 3 && (
                 <div className="mb-4 p-3 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 text-xs font-bold text-amber-900">
                     <MailWarning className="w-4 h-4 text-amber-600 shrink-0" />
-                    <span>TALVEXO PRIORITY MEMO • {currentQuestions[qIndex].tag}</span>
+                    <span>
+                      TALVEXO PRIORITY MEMO • {currentQuestions[qIndex].tag}
+                    </span>
                   </div>
                   <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-amber-200/70 text-amber-900 shrink-0">
                     Action Required
@@ -1718,23 +1713,24 @@ function CandidateAssessment() {
             </p>
 
             <form onSubmit={handleSurveySubmit} className="mt-6 space-y-6">
+              {/* Manipulation Check 1 */}
               <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
                 <div className="text-sm font-semibold text-[#2C2C2C]">
-                  How would you describe the format of the assessment you just
-                  completed?
+                  1. How would you describe the format of the assessment you just
+                  completed? *
                 </div>
                 <div className="flex justify-between text-xs text-slate-500 mt-1 mb-2">
-                  <span>1 — Very traditional and standard</span>
-                  <span>5 — Very game-like and interactive</span>
+                  <span>1 — Very traditional</span>
+                  <span>5 — Very game-like</span>
                 </div>
                 <div className="grid grid-cols-5 gap-2">
                   {[1, 2, 3, 4, 5].map((num) => (
                     <button
                       type="button"
                       key={num}
-                      onClick={() => setMcScore(num)}
+                      onClick={() => setMcFormatScore(num)}
                       className={`py-2 rounded-lg text-sm font-semibold border ${
-                        mcScore === num
+                        mcFormatScore === num
                           ? 'bg-[#4A90E2] text-white border-[#4A90E2]'
                           : 'bg-white text-slate-700 border-slate-300'
                       }`}
@@ -1745,13 +1741,38 @@ function CandidateAssessment() {
                 </div>
               </div>
 
+              {/* Manipulation Check 2 */}
+              <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
+                <div className="text-sm font-semibold text-[#2C2C2C] mb-3">
+                  2. Did this assessment require you to manage limited resources
+                  (such as tokens) to reveal information? *
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  {['Yes', 'No'].map((choice) => (
+                    <button
+                      type="button"
+                      key={choice}
+                      onClick={() => setMcTokensAnswer(choice)}
+                      className={`py-2 rounded-lg text-sm font-semibold border ${
+                        mcTokensAnswer === choice
+                          ? 'bg-[#4A90E2] text-white border-[#4A90E2]'
+                          : 'bg-white text-slate-700 border-slate-300'
+                      }`}
+                    >
+                      {choice}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Construct Items (12 Items) */}
               {SURVEY_ITEMS.map((item, idx) => (
                 <div
                   key={item.id}
                   className="border-b border-slate-100 pb-4 last:border-none"
                 >
                   <div className="text-sm font-medium text-[#2C2C2C] mb-2">
-                    {idx + 1}. {item.text} *
+                    {idx + 3}. {item.text} *
                   </div>
                   <div className="grid grid-cols-5 gap-2">
                     {[1, 2, 3, 4, 5].map((val) => (
@@ -1824,7 +1845,7 @@ function CandidateAssessment() {
                 </div>
 
                 <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mt-4">
-                  Overall Performance Tier
+                  Performance Tier Earned
                 </div>
                 <h2
                   className="text-2xl sm:text-3xl font-bold mt-1"
@@ -1842,7 +1863,6 @@ function CandidateAssessment() {
                     {total} <span className="text-base font-normal">/ 30</span>
                   </div>
 
-                  {/* Visual Breakdown Bars */}
                   <div className="mt-5 space-y-3 text-left text-xs">
                     <div>
                       <div className="flex justify-between font-semibold mb-1">
@@ -1883,7 +1903,6 @@ function CandidateAssessment() {
                   </div>
                 </div>
 
-                {/* Earned Section Badges */}
                 <div className="grid grid-cols-3 gap-2 mt-5 text-xs">
                   {[1, 2, 3].map((num) => (
                     <div
@@ -1894,7 +1913,7 @@ function CandidateAssessment() {
                         {bank.sectionBadges[num].title}
                       </div>
                       <div className="text-[11px] text-amber-700 mt-0.5">
-                        Challenge {num} Badge
+                        Challenge {num}
                       </div>
                     </div>
                   ))}
@@ -2099,7 +2118,7 @@ function AdminPanel() {
             </div>
           </div>
           <div className="bg-white p-4 rounded-xl border border-slate-200">
-            <div className="text-xs text-slate-500">Avg Engagement (G vs T)</div>
+            <div className="text-xs text-slate-500">Avg Enjoyment (G vs T)</div>
             <div className="text-lg font-bold mt-1 text-[#0D9488]">
               {avg(gamifiedRows, 'engagement_avg')} vs{' '}
               {avg(tradRows, 'engagement_avg')}
@@ -2164,11 +2183,12 @@ function AdminPanel() {
                   <th className="p-3">Stream / Role</th>
                   <th className="p-3">Mode</th>
                   <th className="p-3">Score (/30)</th>
-                  <th className="p-3">Engage</th>
+                  <th className="p-3">Enjoy</th>
                   <th className="p-3">Fair</th>
                   <th className="p-3">Attract</th>
-                  <th className="p-3">MC</th>
-                  <th className="p-3">Badge</th>
+                  <th className="p-3">Clarity</th>
+                  <th className="p-3">MC1 / MC2</th>
+                  <th className="p-3">Tier</th>
                 </tr>
               </thead>
               <tbody>
@@ -2194,7 +2214,11 @@ function AdminPanel() {
                     <td className="p-3">{r.engagement_avg}</td>
                     <td className="p-3">{r.fairness_avg}</td>
                     <td className="p-3">{r.attractiveness_avg}</td>
-                    <td className="p-3">{r.manipulation_check ?? '-'}</td>
+                    <td className="p-3">{r.clarity_competence_avg ?? '-'}</td>
+                    <td className="p-3">
+                      {r.manipulation_check ?? '-'} /{' '}
+                      {r.manipulation_check_tokens ?? '-'}
+                    </td>
                     <td className="p-3">{r.performance_badge_tier}</td>
                   </tr>
                 ))}
