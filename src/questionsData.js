@@ -4,6 +4,8 @@ export const SECTION_TIMERS = {
   3: 6 * 60, // 6 minutes (360 seconds)
 };
 
+export const INITIAL_INTEL_TOKENS = 4;
+
 export const CHARACTERS = {
   priya: {
     name: 'Priya Sharma',
@@ -11,9 +13,9 @@ export const CHARACTERS = {
     color: '#0D9488',
     initials: 'PS',
     welcomeMarketing:
-      'Welcome to Talvexo! Today you face three real-world business challenges: Challenge 1 tests Marketing & Growth Aptitude, Challenge 2 tests Regional Sales & Brand Data Interpretation, and Challenge 3 tests Commercial Integrity & Sales Ethics. Let’s see how you think!',
+      'Welcome to Talvexo! Today you face three real-world business challenges: Challenge 1 tests Marketing & Growth Aptitude, Challenge 2 tests Regional Sales & Brand Data Interpretation, and Challenge 3 tests Commercial Integrity & Sales Ethics. You have been allocated 4 Intel Tokens for the entire simulation—spend them wisely to unlock analyst clues on tough calls!',
     welcomeFinance:
-      'Welcome to Talvexo! Today you face three real-world business challenges: Challenge 1 tests Financial & Margin Aptitude, Challenge 2 tests P&L & Liquidity Data Interpretation, and Challenge 3 tests Financial Governance & Reporting Ethics. Let’s see how you think!',
+      'Welcome to Talvexo! Today you face three real-world business challenges: Challenge 1 tests Financial & Margin Aptitude, Challenge 2 tests P&L & Liquidity Data Interpretation, and Challenge 3 tests Financial Governance & Reporting Ethics. You have been allocated 4 Intel Tokens for the entire simulation—spend them wisely to unlock analyst clues on tough calls!',
   },
   rohanMarketing: {
     name: 'Rohan Mehta',
@@ -67,6 +69,8 @@ export const QUESTION_BANK = {
       {
         id: 'M_S1_Q1',
         tag: 'Oral Care Division • Growth Projection',
+        briefStats: ['Month 1: ₹10,00,000', 'Growth: +20% / mo', 'Target: Month 3'],
+        clue: 'Rohan’s Note: Compounded growth means Month 2 is 20% higher than Month 1 (₹12L), and Month 3 grows another 20% on top of Month 2’s base—not Month 1’s.',
         question:
           'Talvexo FMCG launched an herbal facewash in 5 metro cities with Month 1 sales of ₹10,00,000. If monthly sales grow at a compounded rate of 20% per month, what will the sales be in Month 3?',
         options: [
@@ -78,6 +82,8 @@ export const QUESTION_BANK = {
       {
         id: 'M_S1_Q2',
         tag: 'Beverage Division • Acquisition Cost',
+        briefStats: ['Spend: ₹4,50,000', 'Clicks: 60,000', 'Conversion: 2.5%'],
+        clue: 'Rohan’s Note: First calculate paying customers (2.5% of 60,000 = 1,500 customers), then divide total campaign spend by paying customers—not total clicks.',
         question:
           'A digital campaign for Talvexo’s new energy drink spent ₹4,50,000 and generated 60,000 website clicks, of which 2.5% converted into paying customers. What is the Customer Acquisition Cost (CAC)?',
         options: [
@@ -89,6 +95,8 @@ export const QUESTION_BANK = {
       {
         id: 'M_S1_Q3',
         tag: 'Edible Oils Division • Discount Break-Even',
+        briefStats: ['Price: ₹200', 'Var. Cost: ₹140', 'Discount: 10%'],
+        clue: 'Rohan’s Note: Current contribution is ₹60/pack × 30,000 = ₹18,00,000. A 10% price cut drops selling price to ₹180, shrinking unit contribution to ₹40.',
         question:
           'Talvexo sells a 1-liter cooking oil pack to distributors at ₹200 with a variable cost of ₹140 per pack (current volume: 30,000 packs/month). If you offer a 10% price discount, how many packs must be sold monthly just to maintain the current total contribution?',
         options: [
@@ -100,6 +108,8 @@ export const QUESTION_BANK = {
       {
         id: 'M_S1_Q4',
         tag: 'Hair Care Division • Rural Sachet Sizing',
+        briefStats: ['10L Households', '50% Penetration', '20% Share @ ₹6'],
+        clue: 'Rohan’s Note: Active buyers = 5,00,000 households × 4 sachets = 20,00,000 total market sachets. Multiply by Talvexo’s 20% share (4,00,000) and ₹6 realization.',
         question:
           'In a target district of 10,00,000 households, 50% buy shampoo sachets, averaging 4 sachets per month. If Talvexo captures a 20% market share at a net realization of ₹6 per sachet, what is the monthly revenue?',
         options: [
@@ -136,6 +146,7 @@ export const QUESTION_BANK = {
       {
         id: 'M_S2_Q1',
         tag: 'Regional Sales Chart • Budget Reallocation',
+        clue: 'Rohan’s Note: A 3x incremental return on ₹15L adds ₹45L in new sales on top of East Zone’s existing ₹210L baseline.',
         question:
           'Looking at the Regional Quarterly Sales chart, East Zone (₹210L) currently lags behind all other regions. If you allocate ₹15L of fresh promotional budget to East Zone and achieve a 3x incremental revenue return on that spend, what will East Zone’s new quarterly revenue be?',
         options: [
@@ -147,6 +158,7 @@ export const QUESTION_BANK = {
       {
         id: 'M_S2_Q2',
         tag: 'Customer Segment Data • Retention Strategy',
+        clue: 'Rohan’s Note: Protect where 70% of your revenue lives right now using value-added trade incentives rather than abandoning core segments or slashing prices blindly.',
         question:
           'According to the Customer Segment Revenue Share chart, Urban Mid (40%) and Tier-2 Towns (30%) generate 70% of total company revenue. Which commercial initiative best protects this core revenue base against local price competitors?',
         options: [
@@ -170,6 +182,7 @@ export const QUESTION_BANK = {
       {
         id: 'M_S2_Q3',
         tag: 'Organic Tea Launch • Marketing Mix (4Ps)',
+        clue: 'Rohan’s Note: In FMCG, lowering the cash outlay barrier via smaller pack sizes (sachets/trial pouches) unlocks Tier-2 trial without eroding flagship metro pricing.',
         question:
           'Talvexo’s organic green tea sells briskly in metro supermarkets, but Tier-2 shoppers hesitate to buy the ₹450 glass jar for a first-time trial. Which Marketing Mix adjustment directly solves this trial barrier without hurting metro brand equity?',
         options: [
@@ -193,6 +206,7 @@ export const QUESTION_BANK = {
       {
         id: 'M_S2_Q4',
         tag: 'Digestive Biscuits • STP Framework',
+        clue: 'Rohan’s Note: Segmentation divides the market; selecting the specific attractive group to serve is the second step of STP.',
         question:
           'Talvexo is launching a sugar-free digestive biscuit specifically formulated for working professionals aged 28–45 managing workplace stress and irregular meals. In the STP framework, selecting this specific consumer group represents which step?',
         options: [
@@ -204,6 +218,7 @@ export const QUESTION_BANK = {
       {
         id: 'M_S2_Q5',
         tag: 'Cold-Pressed Juice • Brand Positioning',
+        clue: 'Rohan’s Note: Premium differentiation only holds at the point of sale if shoppers immediately see why the product costs 15% more than budget rivals.',
         question:
           'Rivals in the packaged juice aisle compete on "lowest price per liter." Talvexo positions its new cold-pressed juice around "100% farm-traceable fruit with zero added preservatives" at a 15% price premium. What execution priority is critical for this positioning to succeed?',
         options: [
@@ -229,6 +244,7 @@ export const QUESTION_BANK = {
       {
         id: 'M_S3_Q1',
         tag: 'West Zone Personal Care • Quarter-End Targets',
+        clue: 'Ananya’s Compliance Brief: Informal side-agreements to take back unsold stock ("channel stuffing") distort revenue recognition, while legitimate policy-backed incentives protect both integrity and sales.',
         question:
           'It is the final two days of Q3, and your territory is ₹6,00,000 short of its quarterly target. A major distributor offers to place an immediate ₹6,50,000 order for Talvexo body wash—provided you verbally promise to take back unsold stock as "transit damaged returns" in Week 1 of Q4 without penalty. What do you do?',
         options: [
@@ -252,6 +268,7 @@ export const QUESTION_BANK = {
       {
         id: 'M_S3_Q2',
         tag: 'North Zone Health Foods • Packaging Compliance',
+        clue: 'Ananya’s Compliance Brief: Consumer trust requires accurate front-of-pack claims, but commercial agility favors a fast corrective labeling fix over abandoning the entire festive season.',
         question:
           'Days before launching Talvexo’s new protein bar, a quality check shows actual protein is 11.2g per bar, whereas 40,000 printed wrappers state "12g High Protein" (within broad regulatory tolerance, though slightly below the bold front claim). Reprinting wrappers will miss the festive retail window. What do you recommend?',
         options: [
@@ -275,6 +292,7 @@ export const QUESTION_BANK = {
       {
         id: 'M_S3_Q3',
         tag: 'South Zone Trade Marketing • Vendor Evaluation',
+        clue: 'Ananya’s Compliance Brief: During an active tender, even keeping a vendor gift unopened or donating it internally leaves an undisclosed conflict of interest—transparent return and logging are required.',
         question:
           'You are scoring final bids from three event agencies for Talvexo’s annual dealer summit. Agency X—a strong contender—delivers an expensive smartwatch to your home address with a festive greeting card the evening before final selection. How do you respond?',
         options: [
@@ -323,6 +341,8 @@ export const QUESTION_BANK = {
       {
         id: 'F_S1_Q1',
         tag: 'Corporate Treasury • Debt Repayment',
+        briefStats: ['Principal: ₹25L', 'Rate: 12% Simple', 'Tenure: 2 Years'],
+        clue: 'Rohan’s Note: Simple interest = Principal × Rate × Time (₹25L × 12% × 2 = ₹6L). Add that interest back to the ₹25L principal for total maturity repayment.',
         question:
           'Talvexo borrowed ₹25,00,000 at 12% per annum simple interest for 2 years to upgrade a packaging line. What is the total repayment amount (principal + interest) at maturity?',
         options: [
@@ -334,6 +354,8 @@ export const QUESTION_BANK = {
       {
         id: 'F_S1_Q2',
         tag: 'Home Care Plant • CapEx Break-Even',
+        briefStats: ['CapEx: ₹36,00,000', 'Price: ₹30 / bar', 'Var. Cost: ₹18 / bar'],
+        clue: 'Rohan’s Note: Unit contribution is ₹30 − ₹18 = ₹12 per detergent bar. Divide the ₹36,00,000 fixed machinery outlay by ₹12 per unit.',
         question:
           'Talvexo invests ₹36,00,000 in automated machinery for a new detergent bar. Each bar sells to distributors at ₹30, with raw material and packaging costs of ₹18 per bar. How many units must be sold to break even on the machinery investment?',
         options: [
@@ -345,6 +367,8 @@ export const QUESTION_BANK = {
       {
         id: 'F_S1_Q3',
         tag: 'Beverage Bottling Line • Bottleneck Contribution',
+        briefStats: ['Cap: 8,000 hrs', 'SKU A: ₹24 / 0.4h', 'SKU B: ₹18 / 0.25h'],
+        clue: 'Rohan’s Note: When machine hours are the constraint, rank products by Contribution per Machine Hour (SKU A = ₹24 ÷ 0.4; SKU B = ₹18 ÷ 0.25).',
         question:
           'Factory line capacity is capped at 8,000 machine hours this month. SKU A yields ₹24 contribution per unit and takes 0.4 machine hours; SKU B yields ₹18 contribution per unit and takes 0.25 machine hours. Which SKU maximizes total profit under the bottleneck?',
         options: [
@@ -356,6 +380,8 @@ export const QUESTION_BANK = {
       {
         id: 'F_S1_Q4',
         tag: 'Modern Trade Channel • Credit Extension Cost',
+        briefStats: ['Sales: ₹3.6 Cr', 'Credit: +30 Days', 'Cost of Debt: 10%'],
+        clue: 'Rohan’s Note: Daily sales = ₹3,60,00,000 ÷ 360 = ₹1,00,000/day. An extra 30 days ties up ₹30,00,000 in working capital, financed at 10% p.a.',
         question:
           'To onboard a national supermarket chain, Talvexo extends credit terms from 30 days to 60 days on annual sales of ₹3,60,00,000 (360-day year). If Talvexo’s short-term borrowing cost is 10% p.a., what is the annual financing cost of this credit extension?',
         options: [
@@ -392,6 +418,7 @@ export const QUESTION_BANK = {
       {
         id: 'F_S2_Q1',
         tag: 'Comparative P&L Table • Margin Diagnosis',
+        clue: 'Rohan’s Note: Compare the percentage-of-revenue changes in the P&L table: OpEx stayed flat around ~24%, whereas COGS jumped 3 percentage points.',
         question:
           'Looking at the Comparative P&L table, Net Profit fell from ₹87L in Q3 to ₹80.6L in Q4 despite revenue rising to ₹620L. What is the primary financial cause of this profit contraction?',
         options: [
@@ -415,6 +442,7 @@ export const QUESTION_BANK = {
       {
         id: 'F_S2_Q2',
         tag: 'Ratio Cards • Liquidity Risk Diagnosis',
+        clue: 'Rohan’s Note: Current Ratio measures short-term liquidity (Current Assets vs. Current Liabilities), and rising Inventory Days means stock is converting to cash slower.',
         question:
           'Looking at the Ratio Cards, Talvexo’s Current Ratio is 1.15x (below the 1.50x industry benchmark) while Inventory Days jumped from 52 to 68 days. What immediate risk does this signal?',
         options: [
@@ -438,6 +466,7 @@ export const QUESTION_BANK = {
       {
         id: 'F_S2_Q3',
         tag: 'Supply Chain Finance • Working Capital',
+        clue: 'Rohan’s Note: Healthy working capital optimization accelerates cash inflows from receivables and slow inventory without defaulting on vendor payables.',
         question:
           'A regional distribution hub has ₹1.2 crore tied up in excess safety stock and overdue distributor receivables. Which action improves short-term cash flow without harming supplier relationships?',
         options: [
@@ -461,6 +490,7 @@ export const QUESTION_BANK = {
       {
         id: 'F_S2_Q4',
         tag: 'Warehouse Automation • Capital Budgeting',
+        clue: 'Rohan’s Note: When ranking mutually exclusive projects of different scales, Net Present Value (NPV) measures actual rupee wealth added to the firm.',
         question:
           'The CFO is evaluating two mutually exclusive warehouse automation projects. Project Alpha has an NPV of +₹42L and IRR of 16%; Project Beta has an NPV of +₹58L and IRR of 14.5% (both exceed Talvexo’s 11% cost of capital). Under standard corporate finance rules, which project should you recommend?',
         options: [
@@ -484,6 +514,7 @@ export const QUESTION_BANK = {
       {
         id: 'F_S2_Q5',
         tag: 'Balance Sheet Impact • Ratio Mechanics',
+        clue: 'Rohan’s Note: Subtract ₹40L from both numerator and denominator: ₹190L ÷ ₹160L = 1.1875x. When a ratio is above 1.0x, equal reductions raise it.',
         question:
           'A subsidiary currently has Current Assets of ₹230L and Current Liabilities of ₹200L (Current Ratio = 1.15x). If the subsidiary uses ₹40L of cash to pay down ₹40L of short-term accounts payable, what happens to its Current Ratio?',
         options: [
@@ -509,6 +540,7 @@ export const QUESTION_BANK = {
       {
         id: 'F_S3_Q1',
         tag: 'Accounts Payable • Duplicate Payment Discovery',
+        clue: 'Ananya’s Governance Brief: Never hide accounting errors off-ledger; escalate internally first with a documented audit trail and formal vendor debit note.',
         question:
           'During your first month in Corporate Finance, you uncover that a logistics vendor invoice of ₹3,00,000 was accidentally approved and paid twice last week. Your reporting manager signed off on both vouchers without noticing, and year-end audit prep starts tomorrow. What is your immediate step?',
         options: [
@@ -532,6 +564,7 @@ export const QUESTION_BANK = {
       {
         id: 'F_S3_Q2',
         tag: 'Plant Expansion • Expense Capitalization Pressure',
+        clue: 'Ananya’s Governance Brief: Under Ind AS / IFRS, routine repairs and maintenance are period OpEx—capitalizing them or omitting incurred invoices violates accounting standards.',
         question:
           'To meet Q4 EBITDA targets, a Business Unit Head asks you to classify ₹18,00,000 of routine annual machinery maintenance expenses as "Capital Expenditure (CapEx)" so the cost is depreciated over 5 years instead of hitting this quarter’s P&L. How do you handle this?',
         options: [
@@ -555,6 +588,7 @@ export const QUESTION_BANK = {
       {
         id: 'F_S3_Q3',
         tag: 'Strategy Desk • Confidential M&A Data',
+        clue: 'Ananya’s Governance Brief: Unannounced M&A activity is material non-public information—even a subtle hint or conditional confirmation constitutes selective disclosure.',
         question:
           'You are building the valuation model for Talvexo’s confidential acquisition of a regional snack brand (to be announced next week). A close college friend—who works as an equity research analyst—messages you asking if rumors about Talvexo acquiring a snack company are true. What do you do?',
         options: [
