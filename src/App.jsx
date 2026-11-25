@@ -14,18 +14,21 @@ import {
   MailWarning,
   Sparkles,
   Check,
+  Coins,
+  Lightbulb,
 } from 'lucide-react';
 import { supabase } from './supabaseClient';
 import { soundEngine } from './sound';
 import {
   SECTION_TIMERS,
+  INITIAL_INTEL_TOKENS,
   CHARACTERS,
   QUESTION_BANK,
   SURVEY_ITEMS,
   getBadgeTier,
 } from './questionsData';
 
-const STORAGE_KEY = 'talvexo_assessment_progress_v1';
+const STORAGE_KEY = 'talvexo_assessment_progress_v2';
 const ADMIN_PASSWORD = 'Admin@2025';
 
 function formatTime(secs) {
@@ -34,112 +37,173 @@ function formatTime(secs) {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
-function CharacterAvatar({ char, size = 'md' }) {
-  const dim = size === 'sm' ? 'w-14 h-14' : 'w-20 h-20';
-  const id = char.name;
+/* Spider-Verse Character Portrait with Animated Lip-Sync Overlay */
+function CharacterAvatar({ char, size = 'md', speaking = false }) {
+  const [extIndex, setExtIndex] = useState(0);
+  const extensions = ['jpeg', 'jpg', 'png'];
 
-  if (id.includes('Priya')) {
-    return (
-      <div
-        className={`${dim} rounded-2xl overflow-hidden shadow-md border-2 border-teal-200 bg-gradient-to-b from-teal-50 to-slate-100 shrink-0`}
-      >
-        <svg viewBox="0 0 100 100" className="w-full h-full">
-          <path d="M22 42 C20 20, 80 20, 78 42 L82 78 L18 78 Z" fill="#1E293B" />
-          <path d="M16 98 C18 74, 34 68, 50 68 C66 68, 82 74, 84 98 Z" fill="#1E3A8A" />
-          <path d="M38 68 L50 86 L62 68 Z" fill="#F8FAFC" />
-          <rect x="44" y="56" width="12" height="14" rx="5" fill="#E0A98C" />
-          <ellipse cx="50" cy="43" rx="17" ry="20" fill="#EBB497" />
-          <path d="M33 38 C34 23, 66 23, 67 38 C63 29, 39 29, 33 38 Z" fill="#0F172A" />
-          <circle cx="43.5" cy="42" r="2.2" fill="#1E293B" />
-          <circle cx="56.5" cy="42" r="2.2" fill="#1E293B" />
-          <circle cx="50" cy="36" r="1.2" fill="#DC2626" />
-          <path
-            d="M44 50 Q50 55 56 50"
-            stroke="#9A3412"
-            strokeWidth="2.2"
-            fill="none"
-            strokeLinecap="round"
-          />
-        </svg>
-      </div>
-    );
-  }
+  const dim =
+    size === 'sm'
+      ? 'w-14 h-14'
+      : size === 'lg'
+      ? 'w-24 h-24'
+      : 'w-20 h-20';
 
-  if (id.includes('Rohan')) {
-    return (
-      <div
-        className={`${dim} rounded-2xl overflow-hidden shadow-md border-2 border-blue-200 bg-gradient-to-b from-blue-50 to-slate-100 shrink-0`}
-      >
-        <svg viewBox="0 0 100 100" className="w-full h-full">
-          <path d="M15 98 C18 74, 34 68, 50 68 C66 68, 82 74, 85 98 Z" fill="#1E293B" />
-          <path d="M36 68 L50 92 L64 68 Z" fill="#BAE6FD" />
-          <rect x="43" y="56" width="14" height="14" rx="5" fill="#D69E7E" />
-          <ellipse cx="50" cy="43" rx="17" ry="20" fill="#E2AA8B" />
-          <path
-            d="M32 39 C31 20, 69 18, 68 39 C65 28, 37 28, 32 39 Z"
-            fill="#0F172A"
-          />
-          <path
-            d="M35 47 C36 60, 64 60, 65 47 C62 56, 38 56, 35 47 Z"
-            fill="#334155"
-            opacity="0.55"
-          />
-          <circle cx="43.5" cy="41.5" r="2.2" fill="#1E293B" />
-          <circle cx="56.5" cy="41.5" r="2.2" fill="#1E293B" />
-          <path
-            d="M44 50 Q50 54 56 50"
-            stroke="#7C2D12"
-            strokeWidth="2.2"
-            fill="none"
-            strokeLinecap="round"
-          />
-        </svg>
-      </div>
-    );
-  }
+  const isPriya = char.name.includes('Priya');
+  const isRohan = char.name.includes('Rohan');
+  const baseName = isPriya ? 'priya' : isRohan ? 'rohan' : 'ananya';
+  const imgFailed = extIndex >= extensions.length;
+  const imgSrc = `/avatars/${baseName}.${extensions[extIndex]}`;
+
+  const ringColor = isPriya
+    ? 'border-teal-400 shadow-teal-200/60'
+    : isRohan
+    ? 'border-blue-400 shadow-blue-200/60'
+    : 'border-amber-400 shadow-amber-200/60';
 
   return (
     <div
-      className={`${dim} rounded-2xl overflow-hidden shadow-md border-2 border-amber-200 bg-gradient-to-b from-amber-50 to-slate-100 shrink-0`}
+      className={`${dim} rounded-full overflow-hidden shadow-lg border-[3px] ${ringColor} bg-gradient-to-b from-slate-100 to-slate-200 shrink-0 relative select-none ${
+        speaking ? 'animate-head-bob' : ''
+      }`}
     >
-      <svg viewBox="0 0 100 100" className="w-full h-full">
-        <circle cx="50" cy="21" r="11" fill="#1E293B" />
-        <path d="M16 98 C18 74, 34 68, 50 68 C66 68, 82 74, 84 98 Z" fill="#881337" />
-        <path d="M40 68 L50 85 L60 68 Z" fill="#FEF3C7" />
-        <rect x="44" y="56" width="12" height="14" rx="5" fill="#DDA384" />
-        <ellipse cx="50" cy="43" rx="17" ry="20" fill="#E8B092" />
-        <path d="M33 38 C34 23, 66 23, 67 38 C61 29, 39 29, 33 38 Z" fill="#0F172A" />
-        <rect
-          x="37"
-          y="38"
-          width="11"
-          height="8"
-          rx="2"
-          fill="none"
-          stroke="#1E293B"
-          strokeWidth="1.8"
+      {!imgFailed ? (
+        <img
+          src={imgSrc}
+          alt={char.name}
+          onError={() => setExtIndex((prev) => prev + 1)}
+          className="w-full h-full object-cover object-top"
         />
-        <rect
-          x="52"
-          y="38"
-          width="11"
-          height="8"
-          rx="2"
-          fill="none"
-          stroke="#1E293B"
-          strokeWidth="1.8"
+      ) : (
+        /* Detailed Shaded Fallback Portrait (used only if image files aren't found) */
+        <svg viewBox="0 0 120 120" className="w-full h-full">
+          <defs>
+            <radialGradient id="skinGrad" cx="45%" cy="38%" r="55%">
+              <stop offset="0%" stopColor="#F5C3A6" />
+              <stop offset="70%" stopColor="#E09F7D" />
+              <stop offset="100%" stopColor="#C47E5A" />
+            </radialGradient>
+            <linearGradient id="hairGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#334155" />
+              <stop offset="50%" stopColor="#1E293B" />
+              <stop offset="100%" stopColor="#090D16" />
+            </linearGradient>
+            <linearGradient id="suitGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop
+                offset="0%"
+                stopColor={isPriya ? '#254E8A' : isRohan ? '#334155' : '#9F1239'}
+              />
+              <stop
+                offset="100%"
+                stopColor={isPriya ? '#172E59' : isRohan ? '#0F172A' : '#4C0519'}
+              />
+            </linearGradient>
+          </defs>
+
+          {isPriya && (
+            <path
+              d="M24 54 C20 20, 100 20, 96 54 C100 84, 92 98, 82 96 L38 96 C28 98, 20 84, 24 54 Z"
+              fill="url(#hairGrad)"
+            />
+          )}
+          {!isPriya && !isRohan && <circle cx="60" cy="24" r="14" fill="url(#hairGrad)" />}
+
+          <path
+            d="M16 120 C18 88, 38 80, 60 80 C82 80, 102 88, 104 120 Z"
+            fill="url(#suitGrad)"
+          />
+          <path
+            d="M44 80 L60 106 L76 80 Z"
+            fill={isRohan ? '#BAE6FD' : '#FAF8F5'}
+          />
+
+          <rect x="52" y="66" width="16" height="18" rx="7" fill="#C98360" />
+          <ellipse cx="60" cy="50" rx="21" ry="24" fill="url(#skinGrad)" />
+          <ellipse cx="47" cy="55" rx="4.5" ry="2.5" fill="#E11D48" opacity="0.18" />
+          <ellipse cx="73" cy="55" rx="4.5" ry="2.5" fill="#E11D48" opacity="0.18" />
+
+          <path
+            d="M38 45 C39 22, 81 22, 82 45 C75 31, 47 31, 38 45 Z"
+            fill="url(#hairGrad)"
+          />
+
+          <ellipse cx="51" cy="48" rx="4.2" ry="4.6" fill="#FFFFFF" />
+          <ellipse cx="69" cy="48" rx="4.2" ry="4.6" fill="#FFFFFF" />
+          <circle cx="51.2" cy="48.2" r="2.8" fill="#451A03" />
+          <circle cx="69.2" cy="48.2" r="2.8" fill="#451A03" />
+          <circle cx="50.2" cy="47" r="1.1" fill="#FFFFFF" />
+          <circle cx="68.2" cy="47" r="1.1" fill="#FFFFFF" />
+
+          <path
+            d="M45 41.5 Q51 39.5 56 41.5"
+            stroke="#0F172A"
+            strokeWidth="2.2"
+            fill="none"
+            strokeLinecap="round"
+          />
+          <path
+            d="M64 41.5 Q69 39.5 75 41.5"
+            stroke="#0F172A"
+            strokeWidth="2.2"
+            fill="none"
+            strokeLinecap="round"
+          />
+
+          {!isPriya && !isRohan && (
+            <>
+              <rect
+                x="44"
+                y="43"
+                width="14"
+                height="10"
+                rx="2.5"
+                fill="none"
+                stroke="#1E293B"
+                strokeWidth="2"
+              />
+              <rect
+                x="62"
+                y="43"
+                width="14"
+                height="10"
+                rx="2.5"
+                fill="none"
+                stroke="#1E293B"
+                strokeWidth="2"
+              />
+              <line x1="58" y1="48" x2="62" y2="48" stroke="#1E293B" strokeWidth="2" />
+            </>
+          )}
+
+          {isRohan && (
+            <path
+              d="M41 55 C42 71, 78 71, 79 55 C75 66, 45 66, 41 55 Z"
+              fill="#334155"
+              opacity="0.35"
+            />
+          )}
+
+          {!speaking && (
+            <path
+              d="M52 60 Q60 66 68 60"
+              stroke={isPriya ? '#BE123C' : '#881337'}
+              strokeWidth="2.6"
+              fill="none"
+              strokeLinecap="round"
+            />
+          )}
+        </svg>
+      )}
+
+      {/* Animated Talking Lip-Sync Overlay */}
+      {speaking && (
+        <div
+          className="lip-sync-mouth"
+          style={{
+            backgroundColor: isPriya ? '#BE123C' : '#881337',
+          }}
         />
-        <line x1="48" y1="42" x2="52" y2="42" stroke="#1E293B" strokeWidth="1.8" />
-        <circle cx="42.5" cy="42" r="1.8" fill="#1E293B" />
-        <circle cx="57.5" cy="42" r="1.8" fill="#1E293B" />
-        <path
-          d="M45 51 Q50 54.5 55 51"
-          stroke="#881337"
-          strokeWidth="2"
-          fill="none"
-          strokeLinecap="round"
-        />
-      </svg>
+      )}
     </div>
   );
 }
@@ -172,9 +236,9 @@ function CssConfetti({ count = 24 }) {
 
 function MissionRoadmap({ currentSection }) {
   const stages = [
-    { num: 1, label: 'Aptitude' },
-    { num: 2, label: 'Live Dashboard' },
-    { num: 3, label: 'Ethics Boardroom' },
+    { num: 1, label: 'Executive Briefs' },
+    { num: 2, label: 'Analytics Terminal' },
+    { num: 3, label: 'Compliance Desk' },
   ];
 
   return (
@@ -447,13 +511,16 @@ function CandidateAssessment() {
   const [sectionTimes, setSectionTimes] = useState({ 1: 0, 2: 0, 3: 0 });
   const [tradSelected, setTradSelected] = useState('');
 
+  const [tokensLeft, setTokensLeft] = useState(INITIAL_INTEL_TOKENS);
+  const [unlockedClues, setUnlockedClues] = useState({});
+
   const [popup, setPopup] = useState(null);
+  const [introSpeaking, setIntroSpeaking] = useState(false);
   const [badgeTransitionSec, setBadgeTransitionSec] = useState(null);
   const [previewSimulatedScore, setPreviewSimulatedScore] = useState(null);
 
   const [bufferLeft, setBufferLeft] = useState(10);
 
-  // Manipulation checks & Survey State
   const [mcFormatScore, setMcFormatScore] = useState(0);
   const [mcTokensAnswer, setMcTokensAnswer] = useState('');
   const [survey, setSurvey] = useState({});
@@ -474,8 +541,9 @@ function CandidateAssessment() {
       ? bank.section2
       : bank.section3;
 
+  // Inject confetti + talking lip-sync CSS animations once
   useEffect(() => {
-    const styleId = 'talvexo-confetti-style';
+    const styleId = 'talvexo-character-fx-style';
     if (!document.getElementById(styleId)) {
       const style = document.createElement('style');
       style.id = styleId;
@@ -494,13 +562,49 @@ function CandidateAssessment() {
           animation-timing-function: ease-in;
           animation-fill-mode: forwards;
         }
+        @keyframes lipTalk {
+          0%, 100% { transform: translateX(-50%) scaleY(0.35) scaleX(1.05); border-radius: 999px; }
+          25% { transform: translateX(-50%) scaleY(1.25) scaleX(0.88); border-radius: 40% 40% 60% 60%; }
+          50% { transform: translateX(-50%) scaleY(0.5) scaleX(1.1); border-radius: 999px; }
+          75% { transform: translateX(-50%) scaleY(1.1) scaleX(0.92); border-radius: 45% 45% 55% 55%; }
+        }
+        @keyframes headBob {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          30% { transform: translateY(-1.5px) rotate(-1deg); }
+          70% { transform: translateY(-1px) rotate(1deg); }
+        }
+        .lip-sync-mouth {
+          position: absolute;
+          left: 50%;
+          top: 53%;
+          width: 15%;
+          height: 7.5%;
+          border: 1.5px solid rgba(255, 255, 255, 0.75);
+          box-shadow: inset 0 -2px 3px rgba(0, 0, 0, 0.45);
+          animation: lipTalk 0.34s infinite ease-in-out;
+          pointer-events: none;
+        }
+        .animate-head-bob {
+          animation: headBob 0.9s infinite ease-in-out;
+        }
         @media (prefers-reduced-motion: reduce) {
-          .confetti-piece { display: none; }
+          .confetti-piece, .lip-sync-mouth, .animate-head-bob { animation: none; }
         }
       `;
       document.head.appendChild(style);
     }
   }, []);
+
+  // Trigger lip-sync animation for 3.2 seconds whenever Welcome screen or Section Intro appears
+  useEffect(() => {
+    if (!isGamified) return;
+    if (step === 'welcome' || (step === 'assessment' && qIndex === 0)) {
+      setIntroSpeaking(true);
+      const t = setTimeout(() => setIntroSpeaking(false), 3200);
+      return () => clearTimeout(t);
+    }
+    setIntroSpeaking(false);
+  }, [step, section, qIndex, isGamified]);
 
   useEffect(() => {
     if (step !== 'assessment' || popup) return;
@@ -552,6 +656,8 @@ function CandidateAssessment() {
             timeLeft,
             answers,
             sectionTimes,
+            tokensLeft,
+            unlockedClues,
             step: 'assessment',
             savedAt: Date.now(),
           })
@@ -572,6 +678,8 @@ function CandidateAssessment() {
     timeLeft,
     answers,
     sectionTimes,
+    tokensLeft,
+    unlockedClues,
   ]);
 
   useEffect(() => {
@@ -614,6 +722,13 @@ function CandidateAssessment() {
     soundEngine.muted = next;
   }
 
+  function handleUnlockClue(questionId) {
+    if (tokensLeft <= 0 || unlockedClues[questionId]) return;
+    soundEngine.playClick();
+    setTokensLeft((t) => t - 1);
+    setUnlockedClues((prev) => ({ ...prev, [questionId]: true }));
+  }
+
   function handlePreviewJump(target) {
     setPopup(null);
     setTradSelected('');
@@ -654,6 +769,12 @@ function CandidateAssessment() {
     setTimeLeft(resumeOffer.timeLeft);
     setAnswers(resumeOffer.answers);
     setSectionTimes(resumeOffer.sectionTimes || { 1: 0, 2: 0, 3: 0 });
+    setTokensLeft(
+      typeof resumeOffer.tokensLeft === 'number'
+        ? resumeOffer.tokensLeft
+        : INITIAL_INTEL_TOKENS
+    );
+    setUnlockedClues(resumeOffer.unlockedClues || {});
     setResumeOffer(null);
     setStep('assessment');
   }
@@ -705,6 +826,8 @@ function CandidateAssessment() {
     setTimeLeft(SECTION_TIMERS[1]);
     setAnswers({ 1: {}, 2: {}, 3: {} });
     setTradSelected('');
+    setTokensLeft(INITIAL_INTEL_TOKENS);
+    setUnlockedClues({});
 
     if (assigned === 'Gamified') {
       soundEngine.playClick();
@@ -791,7 +914,7 @@ function CandidateAssessment() {
       } else {
         handleSectionComplete(false);
       }
-    }, 1700);
+    }, 1850);
   }
 
   function handleTraditionalNext() {
@@ -871,6 +994,8 @@ function CandidateAssessment() {
       typeof navigator !== 'undefined' &&
       /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
 
+    const tokensSpent = isGamified ? INITIAL_INTEL_TOKENS - tokensLeft : 0;
+
     const payload = {
       full_name: form.full_name,
       college_name: form.college_name,
@@ -895,6 +1020,7 @@ function CandidateAssessment() {
       section1_answers: answers[1],
       section2_answers: answers[2],
       section3_answers: answers[3],
+      tokens_used: tokensSpent,
       manipulation_check: mcFormatScore,
       manipulation_check_tokens: mcTokensAnswer,
       q1: survey.q1,
@@ -985,6 +1111,18 @@ function CandidateAssessment() {
               Stream: <span className="text-teal-400">{form.stream}</span>
             </button>
 
+            {isGamified && (
+              <button
+                onClick={() => {
+                  setTokensLeft(INITIAL_INTEL_TOKENS);
+                  setUnlockedClues({});
+                }}
+                className="bg-amber-600/30 hover:bg-amber-600/50 border border-amber-400 text-amber-200 px-2.5 py-1 rounded font-semibold"
+              >
+                Reset Tokens ({tokensLeft}/4)
+              </button>
+            )}
+
             <select
               value={step === 'assessment' ? `sec${section}` : step}
               onChange={(e) => handlePreviewJump(e.target.value)}
@@ -994,7 +1132,7 @@ function CandidateAssessment() {
               <option value="consent">Screen: 2. Consent</option>
               <option value="register">Screen: 3. Registration</option>
               <option value="welcome">Screen: 4. Welcome (Priya)</option>
-              <option value="sec1">Screen: 5. Section 1 (Aptitude)</option>
+              <option value="sec1">Screen: 5. Section 1 (Briefs)</option>
               <option value="sec2">Screen: 6. Section 2 (Dashboard)</option>
               <option value="sec3">Screen: 7. Section 3 (Ethics)</option>
               <option value="badge_transition">
@@ -1078,7 +1216,23 @@ function CandidateAssessment() {
             </div>
 
             {step === 'assessment' && (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2.5 sm:gap-3">
+                {isGamified && (
+                  <div
+                    title="Limited resource: spend 1 token on any question to reveal an analyst clue"
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs sm:text-sm font-bold border-2 ${
+                      tokensLeft > 0
+                        ? 'bg-amber-50 border-amber-400 text-amber-900'
+                        : 'bg-slate-100 border-slate-300 text-slate-500'
+                    }`}
+                  >
+                    <Coins className="w-4 h-4 text-amber-500" />
+                    <span>
+                      Intel Tokens: {tokensLeft}/{INITIAL_INTEL_TOKENS}
+                    </span>
+                  </div>
+                )}
+
                 {isGamified && (
                   <button
                     onClick={toggleMute}
@@ -1092,6 +1246,7 @@ function CandidateAssessment() {
                     )}
                   </button>
                 )}
+
                 <TimerPill seconds={timeLeft} isGamified={isGamified} />
               </div>
             )}
@@ -1111,14 +1266,17 @@ function CandidateAssessment() {
         </header>
       )}
 
-      {/* Top Character Pop-up Reaction (Gamified Mode Only) */}
+      {/* Top Character Pop-up Reaction with Active Lip-Sync (Gamified Mode Only) */}
       {isGamified && popup && (
         <div className="fixed top-24 left-1/2 z-50 w-[92%] max-w-md animate-pop-in">
-          <div className="bg-white border-2 border-[#0D9488] rounded-2xl p-4 shadow-xl flex items-center gap-3.5">
-            <CharacterAvatar char={popup.speaker} size="sm" />
+          <div className="bg-white border-2 border-[#0D9488] rounded-2xl p-4 shadow-2xl flex items-center gap-4">
+            <CharacterAvatar char={popup.speaker} size="sm" speaking={true} />
             <div>
-              <div className="text-xs font-bold text-[#0D9488]">
-                {popup.speaker.name} • {popup.speaker.role}
+              <div className="text-xs font-bold text-[#0D9488] flex items-center gap-1.5">
+                <span>
+                  {popup.speaker.name} • {popup.speaker.role}
+                </span>
+                <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
               </div>
               <div className="text-sm font-medium text-[#2C2C2C] mt-0.5">
                 {popup.message}
@@ -1417,12 +1575,16 @@ function CandidateAssessment() {
         </main>
       )}
 
-      {/* 4. GAMIFIED WELCOME SCREEN (Priya Sharma) */}
+      {/* 4. GAMIFIED WELCOME SCREEN (Priya Sharma with Lip-Sync) */}
       {step === 'welcome' && (
         <main className="max-w-2xl mx-auto px-5 py-12">
           <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-md border border-slate-200">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-              <CharacterAvatar char={CHARACTERS.priya} />
+              <CharacterAvatar
+                char={CHARACTERS.priya}
+                size="lg"
+                speaking={introSpeaking}
+              />
               <div>
                 <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-teal-50 text-[#0D9488] text-xs font-bold uppercase tracking-wide">
                   {CHARACTERS.priya.name} • {CHARACTERS.priya.role}
@@ -1439,6 +1601,21 @@ function CandidateAssessment() {
                 ? CHARACTERS.priya.welcomeFinance
                 : CHARACTERS.priya.welcomeMarketing}
               ”
+            </div>
+
+            <div className="mt-4 p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-3">
+              <Coins className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+              <div className="text-xs text-amber-950 leading-relaxed">
+                <span className="font-bold">
+                  Limited Resource Rule (4 Intel Tokens):
+                </span>{' '}
+                You start with{' '}
+                <span className="font-bold">4 Intel Tokens</span> across all 12
+                decisions. On any tough question, you can spend{' '}
+                <span className="font-bold">1 Intel Token</span> to unlock an
+                analyst clue from Rohan or Ananya. Once spent, tokens do not
+                replenish—budget them strategically!
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5 text-xs">
@@ -1489,6 +1666,7 @@ function CandidateAssessment() {
                     : CHARACTERS.rohanMarketing
                 }
                 size="sm"
+                speaking={introSpeaking}
               />
               <div>
                 <div className="text-xs font-bold text-[#4A90E2]">
@@ -1557,9 +1735,56 @@ function CandidateAssessment() {
                 </div>
               )}
 
+              {isGamified &&
+                section === 1 &&
+                currentQuestions[qIndex].briefStats && (
+                  <div className="flex flex-wrap gap-2 mb-3.5">
+                    {currentQuestions[qIndex].briefStats.map((stat, sIdx) => (
+                      <span
+                        key={sIdx}
+                        className="px-2.5 py-1 rounded-md bg-blue-50 border border-blue-200 text-xs font-bold text-[#1E3A8A]"
+                      >
+                        {stat}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
               <h3 className="text-base sm:text-lg font-semibold leading-relaxed text-[#2C2C2C]">
                 {currentQuestions[qIndex].question}
               </h3>
+
+              {isGamified && (
+                <div className="mt-4">
+                  {unlockedClues[currentQuestions[qIndex].id] ? (
+                    <div className="p-3.5 rounded-xl bg-amber-50/90 border border-amber-300 flex items-start gap-2.5 text-xs sm:text-sm text-amber-950">
+                      <Lightbulb className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-bold">Unlocked Analyst Clue: </span>
+                        {currentQuestions[qIndex].clue}
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled={tokensLeft <= 0 || Boolean(popup)}
+                      onClick={() =>
+                        handleUnlockClue(currentQuestions[qIndex].id)
+                      }
+                      className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold border transition ${
+                        tokensLeft > 0
+                          ? 'bg-amber-50 hover:bg-amber-100 border-amber-300 text-amber-900'
+                          : 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed'
+                      }`}
+                    >
+                      <Coins className="w-3.5 h-3.5 text-amber-600" />
+                      {tokensLeft > 0
+                        ? `Spend 1 Intel Token to Reveal Clue (${tokensLeft} left)`
+                        : '0 Intel Tokens Remaining'}
+                    </button>
+                  )}
+                </div>
+              )}
 
               <div className="mt-5 space-y-3">
                 {currentQuestions[qIndex].options.map((opt) => {
@@ -1713,7 +1938,6 @@ function CandidateAssessment() {
             </p>
 
             <form onSubmit={handleSurveySubmit} className="mt-6 space-y-6">
-              {/* Manipulation Check 1 */}
               <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
                 <div className="text-sm font-semibold text-[#2C2C2C]">
                   1. How would you describe the format of the assessment you just
@@ -1741,7 +1965,6 @@ function CandidateAssessment() {
                 </div>
               </div>
 
-              {/* Manipulation Check 2 */}
               <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
                 <div className="text-sm font-semibold text-[#2C2C2C] mb-3">
                   2. Did this assessment require you to manage limited resources
@@ -1765,7 +1988,6 @@ function CandidateAssessment() {
                 </div>
               </div>
 
-              {/* Construct Items (12 Items) */}
               {SURVEY_ITEMS.map((item, idx) => (
                 <div
                   key={item.id}
@@ -1861,6 +2083,10 @@ function CandidateAssessment() {
                   <div className="text-xs text-slate-500">Total Score</div>
                   <div className="text-3xl font-bold text-[#2C2C2C]">
                     {total} <span className="text-base font-normal">/ 30</span>
+                  </div>
+                  <div className="text-xs text-amber-800 font-semibold mt-1">
+                    Intel Tokens Used: {INITIAL_INTEL_TOKENS - tokensLeft} of{' '}
+                    {INITIAL_INTEL_TOKENS}
                   </div>
 
                   <div className="mt-5 space-y-3 text-left text-xs">
@@ -2183,6 +2409,7 @@ function AdminPanel() {
                   <th className="p-3">Stream / Role</th>
                   <th className="p-3">Mode</th>
                   <th className="p-3">Score (/30)</th>
+                  <th className="p-3">Tokens</th>
                   <th className="p-3">Enjoy</th>
                   <th className="p-3">Fair</th>
                   <th className="p-3">Attract</th>
@@ -2211,6 +2438,7 @@ function AdminPanel() {
                       </span>
                     </td>
                     <td className="p-3 font-bold">{r.total_score}</td>
+                    <td className="p-3">{r.tokens_used ?? 0}/4</td>
                     <td className="p-3">{r.engagement_avg}</td>
                     <td className="p-3">{r.fairness_avg}</td>
                     <td className="p-3">{r.attractiveness_avg}</td>
