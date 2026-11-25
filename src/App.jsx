@@ -11,6 +11,9 @@ import {
   ShieldCheck,
   BarChart3,
   RefreshCw,
+  MailWarning,
+  Sparkles,
+  Check,
 } from 'lucide-react';
 import { supabase } from './supabaseClient';
 import { soundEngine } from './sound';
@@ -31,33 +34,226 @@ function formatTime(secs) {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
+/* Custom Inline Vector Character Portraits (Zero External Assets Needed) */
 function CharacterAvatar({ char, size = 'md' }) {
-  const dim = size === 'sm' ? 'w-12 h-12 text-base' : 'w-16 h-16 text-xl';
+  const dim = size === 'sm' ? 'w-14 h-14' : 'w-20 h-20';
+  const id = char.name;
+
+  if (id.includes('Priya')) {
+    return (
+      <div
+        className={`${dim} rounded-2xl overflow-hidden shadow-md border-2 border-teal-200 bg-gradient-to-b from-teal-50 to-slate-100 shrink-0`}
+      >
+        <svg viewBox="0 0 100 100" className="w-full h-full">
+          {/* Hair back */}
+          <path d="M22 42 C20 20, 80 20, 78 42 L82 78 L18 78 Z" fill="#1E293B" />
+          {/* Navy Blazer */}
+          <path d="M16 98 C18 74, 34 68, 50 68 C66 68, 82 74, 84 98 Z" fill="#1E3A8A" />
+          {/* Blouse */}
+          <path d="M38 68 L50 86 L62 68 Z" fill="#F8FAFC" />
+          {/* Neck & Face */}
+          <rect x="44" y="56" width="12" height="14" rx="5" fill="#E0A98C" />
+          <ellipse cx="50" cy="43" rx="17" ry="20" fill="#EBB497" />
+          {/* Front Hair */}
+          <path d="M33 38 C34 23, 66 23, 67 38 C63 29, 39 29, 33 38 Z" fill="#0F172A" />
+          {/* Eyes & Smile */}
+          <circle cx="43.5" cy="42" r="2.2" fill="#1E293B" />
+          <circle cx="56.5" cy="42" r="2.2" fill="#1E293B" />
+          <circle cx="50" cy="36" r="1.2" fill="#DC2626" />
+          <path
+            d="M44 50 Q50 55 56 50"
+            stroke="#9A3412"
+            strokeWidth="2.2"
+            fill="none"
+            strokeLinecap="round"
+          />
+        </svg>
+      </div>
+    );
+  }
+
+  if (id.includes('Rohan')) {
+    return (
+      <div
+        className={`${dim} rounded-2xl overflow-hidden shadow-md border-2 border-blue-200 bg-gradient-to-b from-blue-50 to-slate-100 shrink-0`}
+      >
+        <svg viewBox="0 0 100 100" className="w-full h-full">
+          {/* Dark Vest & Light Blue Shirt */}
+          <path d="M15 98 C18 74, 34 68, 50 68 C66 68, 82 74, 85 98 Z" fill="#1E293B" />
+          <path d="M36 68 L50 92 L64 68 Z" fill="#BAE6FD" />
+          {/* Neck & Face */}
+          <rect x="43" y="56" width="14" height="14" rx="5" fill="#D69E7E" />
+          <ellipse cx="50" cy="43" rx="17" ry="20" fill="#E2AA8B" />
+          {/* Styled Hair */}
+          <path
+            d="M32 39 C31 20, 69 18, 68 39 C65 28, 37 28, 32 39 Z"
+            fill="#0F172A"
+          />
+          {/* Subtle Beard & Smile */}
+          <path
+            d="M35 47 C36 60, 64 60, 65 47 C62 56, 38 56, 35 47 Z"
+            fill="#334155"
+            opacity="0.55"
+          />
+          <circle cx="43.5" cy="41.5" r="2.2" fill="#1E293B" />
+          <circle cx="56.5" cy="41.5" r="2.2" fill="#1E293B" />
+          <path
+            d="M44 50 Q50 54 56 50"
+            stroke="#7C2D12"
+            strokeWidth="2.2"
+            fill="none"
+            strokeLinecap="round"
+          />
+        </svg>
+      </div>
+    );
+  }
+
   return (
     <div
-      className={`${dim} rounded-2xl flex items-center justify-center font-bold text-white shadow-md shrink-0 select-none`}
-      style={{
-        background: `linear-gradient(135deg, ${char.color}, #1E293B)`,
-      }}
+      className={`${dim} rounded-2xl overflow-hidden shadow-md border-2 border-amber-200 bg-gradient-to-b from-amber-50 to-slate-100 shrink-0`}
     >
-      {char.initials}
+      <svg viewBox="0 0 100 100" className="w-full h-full">
+        {/* Bun & Hair */}
+        <circle cx="50" cy="21" r="11" fill="#1E293B" />
+        {/* Maroon Blazer */}
+        <path d="M16 98 C18 74, 34 68, 50 68 C66 68, 82 74, 84 98 Z" fill="#881337" />
+        <path d="M40 68 L50 85 L60 68 Z" fill="#FEF3C7" />
+        {/* Neck & Face */}
+        <rect x="44" y="56" width="12" height="14" rx="5" fill="#DDA384" />
+        <ellipse cx="50" cy="43" rx="17" ry="20" fill="#E8B092" />
+        <path d="M33 38 C34 23, 66 23, 67 38 C61 29, 39 29, 33 38 Z" fill="#0F172A" />
+        {/* Glasses */}
+        <rect
+          x="37"
+          y="38"
+          width="11"
+          height="8"
+          rx="2"
+          fill="none"
+          stroke="#1E293B"
+          strokeWidth="1.8"
+        />
+        <rect
+          x="52"
+          y="38"
+          width="11"
+          height="8"
+          rx="2"
+          fill="none"
+          stroke="#1E293B"
+          strokeWidth="1.8"
+        />
+        <line x1="48" y1="42" x2="52" y2="42" stroke="#1E293B" strokeWidth="1.8" />
+        <circle cx="42.5" cy="42" r="1.8" fill="#1E293B" />
+        <circle cx="57.5" cy="42" r="1.8" fill="#1E293B" />
+        <path
+          d="M45 51 Q50 54.5 55 51"
+          stroke="#881337"
+          strokeWidth="2"
+          fill="none"
+          strokeLinecap="round"
+        />
+      </svg>
     </div>
   );
 }
 
-function TimerPill({ seconds }) {
+/* Pure CSS Confetti Overlay */
+function CssConfetti({ count = 24 }) {
+  const colors = ['#4A90E2', '#0D9488', '#F59E0B', '#FFD93D', '#38BDF8'];
+  return (
+    <div className="pointer-events-none fixed inset-0 overflow-hidden z-40">
+      {Array.from({ length: count }).map((_, i) => {
+        const left = `${(i * 100) / count + (i % 3)}%`;
+        const delay = `${(i % 7) * 0.14}s`;
+        const duration = `${1.9 + (i % 4) * 0.35}s`;
+        const bg = colors[i % colors.length];
+        return (
+          <span
+            key={i}
+            className="confetti-piece"
+            style={{
+              left,
+              backgroundColor: bg,
+              animationDelay: delay,
+              animationDuration: duration,
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+/* 3-Stage Corporate Mission Roadmap (Gamified Header) */
+function MissionRoadmap({ currentSection }) {
+  const stages = [
+    { num: 1, label: 'Aptitude' },
+    { num: 2, label: 'Live Dashboard' },
+    { num: 3, label: 'Ethics Boardroom' },
+  ];
+
+  return (
+    <div className="flex items-center justify-between max-w-xl mx-auto mt-2.5 pt-2 border-t border-slate-100">
+      {stages.map((st, idx) => {
+        const done = currentSection > st.num;
+        const active = currentSection === st.num;
+        return (
+          <React.Fragment key={st.num}>
+            <div className="flex items-center gap-2">
+              <div
+                className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                  done
+                    ? 'bg-[#0D9488] text-white'
+                    : active
+                    ? 'bg-[#4A90E2] text-white ring-4 ring-blue-100'
+                    : 'bg-slate-200 text-slate-500'
+                }`}
+              >
+                {done ? <Check className="w-3.5 h-3.5" /> : st.num}
+              </div>
+              <span
+                className={`text-xs font-semibold hidden sm:inline ${
+                  active
+                    ? 'text-[#4A90E2]'
+                    : done
+                    ? 'text-[#0D9488]'
+                    : 'text-slate-400'
+                }`}
+              >
+                {st.label}
+              </span>
+            </div>
+            {idx < stages.length - 1 && (
+              <div
+                className={`flex-1 h-1 mx-2 rounded-full transition-colors ${
+                  currentSection > st.num ? 'bg-[#0D9488]' : 'bg-slate-200'
+                }`}
+              />
+            )}
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+}
+
+function TimerPill({ seconds, isGamified }) {
   let border = '#4A90E2';
   let text = '#2C2C2C';
+  let pulse = '';
   if (seconds <= 30) {
     border = '#E74C3C';
     text = '#E74C3C';
+    if (isGamified) pulse = 'animate-pulse';
   } else if (seconds <= 120) {
     border = '#F5A623';
     text = '#B45309';
   }
   return (
     <div
-      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white font-semibold text-sm shadow-sm border-2 transition-colors"
+      className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white font-semibold text-sm shadow-sm border-2 transition-colors ${pulse}`}
       style={{ borderColor: border, color: text }}
     >
       <Clock className="w-4 h-4" />
@@ -73,17 +269,29 @@ function DashboardView({ dashboard, isGamified }) {
     <div
       className={
         isGamified
-          ? 'bg-white rounded-xl p-5 shadow-sm border border-slate-200 mb-6'
+          ? 'bg-white rounded-2xl p-5 shadow-sm border border-slate-200 mb-6'
           : 'border border-slate-300 p-4 mb-6 bg-white'
       }
     >
+      {isGamified && (
+        <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#0D9488] flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5" />
+            Talvexo Live Analytics Terminal
+          </span>
+          <span className="text-[11px] font-medium px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+            FY Quarterly Feed
+          </span>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
         {dashboard.kpis.map((kpi, idx) => (
           <div
             key={idx}
             className={
               isGamified
-                ? 'bg-slate-50 border border-slate-200 rounded-lg p-3.5'
+                ? 'bg-gradient-to-br from-slate-50 to-white border border-slate-200 rounded-xl p-3.5 shadow-2xs'
                 : 'border border-slate-300 p-3 bg-white'
             }
           >
@@ -103,7 +311,7 @@ function DashboardView({ dashboard, isGamified }) {
         <div
           className={
             isGamified
-              ? 'bg-slate-50 border border-slate-200 rounded-lg p-4'
+              ? 'bg-slate-50/70 border border-slate-200 rounded-xl p-4'
               : 'border border-slate-300 p-3'
           }
         >
@@ -118,12 +326,14 @@ function DashboardView({ dashboard, isGamified }) {
                   <span className="w-16 font-medium text-slate-700 shrink-0">
                     {item.name}
                   </span>
-                  <div className="flex-1 bg-slate-200 h-5 rounded overflow-hidden">
+                  <div className="flex-1 bg-slate-200 h-5 rounded-md overflow-hidden">
                     <div
-                      className="h-full transition-all duration-300"
+                      className="h-full transition-all duration-500"
                       style={{
                         width: `${widthPct}%`,
-                        backgroundColor: isGamified ? '#4A90E2' : '#475569',
+                        background: isGamified
+                          ? 'linear-gradient(90deg, #4A90E2, #0D9488)'
+                          : '#475569',
                       }}
                     />
                   </div>
@@ -139,7 +349,7 @@ function DashboardView({ dashboard, isGamified }) {
         <div
           className={
             isGamified
-              ? 'bg-slate-50 border border-slate-200 rounded-lg p-4'
+              ? 'bg-slate-50/70 border border-slate-200 rounded-xl p-4'
               : 'border border-slate-300 p-3'
           }
         >
@@ -156,7 +366,7 @@ function DashboardView({ dashboard, isGamified }) {
                   >
                     <span className="font-medium text-slate-700">{seg.name}</span>
                     <span
-                      className={`font-bold px-2 py-0.5 rounded ${
+                      className={`font-bold px-2.5 py-0.5 rounded-full ${
                         isGamified
                           ? 'bg-teal-100 text-teal-800'
                           : 'bg-slate-100 text-slate-800'
@@ -278,6 +488,56 @@ function CandidateAssessment() {
       : section === 2
       ? bank.section2
       : bank.section3;
+
+  // Inject confetti CSS keyframes once
+  useEffect(() => {
+    const styleId = 'talvexo-confetti-style';
+    if (!document.getElementById(styleId)) {
+      const style = document.createElement('style');
+      style.id = styleId;
+      style.innerHTML = `
+        @keyframes confettiFall {
+          0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+          100% { transform: translateY(105vh) rotate(540deg); opacity: 0; }
+        }
+        .confetti-piece {
+          position: absolute;
+          top: -12px;
+          width: 9px;
+          height: 14px;
+          border-radius: 2px;
+          animation-name: confettiFall;
+          animation-timing-function: ease-in;
+          animation-fill-mode: forwards;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .confetti-piece { display: none; }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  }, []);
+
+  // Keyboard shortcuts (A, B, C) during active assessment
+  useEffect(() => {
+    if (step !== 'assessment' || popup) return;
+    function onKeyDown(e) {
+      const key = e.key.toUpperCase();
+      if (key === 'A' || key === 'B' || key === 'C') {
+        const q = currentQuestions[qIndex];
+        const opt = q?.options.find((o) => o.id === key);
+        if (opt) {
+          if (isGamified) {
+            handleGamifiedAnswer(opt);
+          } else {
+            setTradSelected(opt.id);
+          }
+        }
+      }
+    }
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [step, popup, currentQuestions, qIndex, isGamified]);
 
   useEffect(() => {
     if (isPreview) return;
@@ -693,7 +953,7 @@ function CandidateAssessment() {
         step !== 'landing' &&
         step !== 'consent' &&
         step !== 'register'
-          ? 'bg-[#F1F5F9]'
+          ? 'bg-gradient-to-br from-slate-100 via-teal-50/40 to-blue-50/50'
           : 'bg-white'
       } text-[#2C2C2C]`}
     >
@@ -710,7 +970,6 @@ function CandidateAssessment() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            {/* Mode Switcher */}
             <button
               onClick={() =>
                 setMode(mode === 'Gamified' ? 'Traditional' : 'Gamified')
@@ -720,7 +979,6 @@ function CandidateAssessment() {
               Mode: <span className="text-amber-400">{mode}</span>
             </button>
 
-            {/* Stream Switcher */}
             <button
               onClick={() =>
                 setForm((f) => ({
@@ -733,11 +991,8 @@ function CandidateAssessment() {
               Stream: <span className="text-teal-400">{form.stream}</span>
             </button>
 
-            {/* Jump to Any Screen */}
             <select
-              value={
-                step === 'assessment' ? `sec${section}` : step
-              }
+              value={step === 'assessment' ? `sec${section}` : step}
               onChange={(e) => handlePreviewJump(e.target.value)}
               className="bg-slate-800 border border-slate-600 rounded px-2.5 py-1 font-semibold text-white"
             >
@@ -757,7 +1012,6 @@ function CandidateAssessment() {
               <option value="debrief">Screen: 12. Debrief</option>
             </select>
 
-            {/* Jump to Question inside Active Section */}
             {step === 'assessment' && (
               <select
                 value={qIndex}
@@ -776,7 +1030,6 @@ function CandidateAssessment() {
               </select>
             )}
 
-            {/* Badge Tier Simulator on Results Screen */}
             {step === 'results' && (
               <select
                 value={previewSimulatedScore ?? 28}
@@ -814,12 +1067,19 @@ function CandidateAssessment() {
           }`}
         >
           <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
-            <div>
-              <div className="text-xs text-slate-500 font-medium">
-                {form.full_name}
-              </div>
-              <div className="text-sm font-bold text-[#2C2C2C]">
-                Role: {roleTitle}
+            <div className="flex items-center gap-2.5">
+              {isGamified && (
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#4A90E2] to-[#0D9488] text-white font-bold text-sm flex items-center justify-center shadow-2xs">
+                  T
+                </div>
+              )}
+              <div>
+                <div className="text-xs text-slate-500 font-medium">
+                  {form.full_name}
+                </div>
+                <div className="text-sm font-bold text-[#2C2C2C]">
+                  Role: {roleTitle}
+                </div>
               </div>
             </div>
 
@@ -838,27 +1098,17 @@ function CandidateAssessment() {
                     )}
                   </button>
                 )}
-                <TimerPill seconds={timeLeft} />
+                <TimerPill seconds={timeLeft} isGamified={isGamified} />
               </div>
             )}
           </div>
 
           {step === 'assessment' && (
-            <div className="max-w-4xl mx-auto mt-2.5">
+            <div className="max-w-4xl mx-auto">
               {isGamified ? (
-                <div className="flex items-center gap-3">
-                  <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-[#4A90E2] transition-all duration-300"
-                      style={{ width: `${(section / 3) * 100}%` }}
-                    />
-                  </div>
-                  <span className="text-xs font-semibold text-slate-600">
-                    Challenge {section} of 3
-                  </span>
-                </div>
+                <MissionRoadmap currentSection={section} />
               ) : (
-                <div className="text-xs font-medium text-slate-600">
+                <div className="text-xs font-medium text-slate-600 mt-2">
                   Section {section} of 3
                 </div>
               )}
@@ -1176,20 +1426,20 @@ function CandidateAssessment() {
       {/* 4. GAMIFIED WELCOME SCREEN (Priya Sharma) */}
       {step === 'welcome' && (
         <main className="max-w-2xl mx-auto px-5 py-12">
-          <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200">
+          <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-md border border-slate-200">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               <CharacterAvatar char={CHARACTERS.priya} />
               <div>
-                <div className="text-xs font-bold uppercase tracking-wide text-[#0D9488]">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-teal-50 text-[#0D9488] text-xs font-bold uppercase tracking-wide">
                   {CHARACTERS.priya.name} • {CHARACTERS.priya.role}
                 </div>
-                <h2 className="text-xl font-bold mt-0.5">
+                <h2 className="text-xl sm:text-2xl font-bold mt-1">
                   Welcome to Your {roleTitle} Simulation
                 </h2>
               </div>
             </div>
 
-            <div className="mt-5 p-4 rounded-xl bg-teal-50/70 border border-teal-100 text-sm text-[#2C2C2C] leading-relaxed">
+            <div className="mt-5 p-4 rounded-xl bg-gradient-to-r from-teal-50 to-blue-50 border border-teal-100 text-sm text-[#2C2C2C] leading-relaxed">
               “
               {form.stream === 'Finance'
                 ? CHARACTERS.priya.welcomeFinance
@@ -1198,21 +1448,21 @@ function CandidateAssessment() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5 text-xs">
-              <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
-                <div className="font-bold text-[#4A90E2]">Challenge 1 (8m)</div>
-                <div className="text-slate-600 mt-0.5">
+              <div className="p-3.5 rounded-xl bg-blue-50/60 border border-blue-200">
+                <div className="font-bold text-[#4A90E2]">Challenge 1 • 8m</div>
+                <div className="text-slate-700 font-medium mt-1">
                   {bank.sectionTitles[1]}
                 </div>
               </div>
-              <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
-                <div className="font-bold text-[#0D9488]">Challenge 2 (8m)</div>
-                <div className="text-slate-600 mt-0.5">
+              <div className="p-3.5 rounded-xl bg-teal-50/60 border border-teal-200">
+                <div className="font-bold text-[#0D9488]">Challenge 2 • 8m</div>
+                <div className="text-slate-700 font-medium mt-1">
                   {bank.sectionTitles[2]}
                 </div>
               </div>
-              <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
-                <div className="font-bold text-[#F59E0B]">Challenge 3 (6m)</div>
-                <div className="text-slate-600 mt-0.5">
+              <div className="p-3.5 rounded-xl bg-amber-50/60 border border-amber-200">
+                <div className="font-bold text-[#D97706]">Challenge 3 • 6m</div>
+                <div className="text-slate-700 font-medium mt-1">
                   {bank.sectionTitles[3]}
                 </div>
               </div>
@@ -1223,9 +1473,9 @@ function CandidateAssessment() {
                 soundEngine.playClick();
                 setStep('assessment');
               }}
-              className="mt-6 w-full py-3.5 rounded-xl bg-[#4A90E2] hover:bg-blue-600 text-white font-semibold text-sm shadow-sm transition"
+              className="mt-6 w-full py-3.5 rounded-xl bg-gradient-to-r from-[#4A90E2] to-[#0D9488] hover:opacity-95 text-white font-semibold text-sm shadow-md transition"
             >
-              Start Challenge 1
+              Launch Challenge 1 →
             </button>
           </div>
         </main>
@@ -1235,7 +1485,7 @@ function CandidateAssessment() {
       {step === 'assessment' && (
         <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
           {isGamified && qIndex === 0 && (
-            <div className="bg-white rounded-xl p-4 mb-6 border border-slate-200 shadow-xs flex items-center gap-3.5">
+            <div className="bg-white rounded-2xl p-4 mb-6 border border-slate-200 shadow-xs flex items-center gap-4">
               <CharacterAvatar
                 char={
                   section === 3
@@ -1249,12 +1499,12 @@ function CandidateAssessment() {
               <div>
                 <div className="text-xs font-bold text-[#4A90E2]">
                   {section === 3
-                    ? `${CHARACTERS.ananya.name} (${CHARACTERS.ananya.role})`
+                    ? `${CHARACTERS.ananya.name} • ${CHARACTERS.ananya.role}`
                     : form.stream === 'Finance'
-                    ? `${CHARACTERS.rohanFinance.name} (${CHARACTERS.rohanFinance.role})`
-                    : `${CHARACTERS.rohanMarketing.name} (${CHARACTERS.rohanMarketing.role})`}
+                    ? `${CHARACTERS.rohanFinance.name} • ${CHARACTERS.rohanFinance.role}`
+                    : `${CHARACTERS.rohanMarketing.name} • ${CHARACTERS.rohanMarketing.role}`}
                 </div>
-                <div className="text-xs sm:text-sm text-slate-700 mt-0.5">
+                <div className="text-xs sm:text-sm text-slate-700 mt-0.5 leading-relaxed">
                   “
                   {section === 3
                     ? CHARACTERS.ananya.intro
@@ -1278,20 +1528,35 @@ function CandidateAssessment() {
             <div
               className={
                 isGamified
-                  ? 'bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200'
+                  ? 'bg-white rounded-2xl p-6 sm:p-8 shadow-md border border-slate-200'
                   : 'bg-white border border-slate-300 p-6'
               }
             >
+              {/* Section 3 Priority Memo Header (Gamified Mode Only) */}
+              {isGamified && section === 3 && (
+                <div className="mb-4 p-3 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 text-xs font-bold text-amber-900">
+                    <MailWarning className="w-4 h-4 text-amber-600 shrink-0" />
+                    <span>TALVEXO PRIORITY MEMO • {currentQuestions[qIndex].tag}</span>
+                  </div>
+                  <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-amber-200/70 text-amber-900 shrink-0">
+                    Action Required
+                  </span>
+                </div>
+              )}
+
               <div className="flex items-center justify-between text-xs text-slate-500 mb-2">
                 <span className="font-semibold uppercase tracking-wide">
                   {bank.sectionTitles[section]}
                 </span>
-                <span>
-                  Question {qIndex + 1} of {currentQuestions.length}
+                <span className="font-semibold">
+                  {isGamified
+                    ? `Decision ${qIndex + 1} of ${currentQuestions.length}`
+                    : `Question ${qIndex + 1} of ${currentQuestions.length}`}
                 </span>
               </div>
 
-              {isGamified && (
+              {isGamified && section !== 3 && (
                 <div className="inline-block text-xs font-semibold px-2.5 py-0.5 rounded-full bg-teal-50 text-[#0D9488] mb-3">
                   {currentQuestions[qIndex].tag}
                 </div>
@@ -1321,12 +1586,12 @@ function CandidateAssessment() {
                           setTradSelected(opt.id);
                         }
                       }}
-                      className={`w-full text-left p-4 transition flex items-start gap-3 ${
+                      className={`w-full text-left p-4 transition-all flex items-start gap-3.5 ${
                         isGamified
-                          ? `rounded-xl border-2 ${
+                          ? `rounded-xl border-2 hover:-translate-y-0.5 hover:shadow-sm ${
                               isPicked
-                                ? 'border-[#0D9488] bg-teal-50/60'
-                                : 'border-slate-200 hover:border-[#4A90E2] hover:bg-slate-50'
+                                ? 'border-[#0D9488] bg-teal-50/70 ring-2 ring-teal-200'
+                                : 'border-slate-200 hover:border-[#4A90E2] hover:bg-blue-50/30'
                             }`
                           : `border ${
                               isPicked
@@ -1336,9 +1601,11 @@ function CandidateAssessment() {
                       }`}
                     >
                       <span
-                        className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5 ${
+                        className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5 ${
                           isGamified
-                            ? 'bg-slate-100 text-[#2C2C2C]'
+                            ? isPicked
+                              ? 'bg-[#0D9488] text-white'
+                              : 'bg-slate-100 text-[#2C2C2C]'
                             : 'border border-slate-400 text-slate-700'
                         }`}
                       >
@@ -1351,6 +1618,12 @@ function CandidateAssessment() {
                   );
                 })}
               </div>
+
+              {isGamified && (
+                <div className="mt-4 text-[11px] text-slate-400 text-right hidden sm:block">
+                  Tip: You can also press keys A, B, or C to select
+                </div>
+              )}
 
               {!isGamified && (
                 <div className="mt-6 flex justify-end">
@@ -1375,13 +1648,14 @@ function CandidateAssessment() {
 
       {/* 6. GAMIFIED SECTION COMPLETION BADGE TRANSITION */}
       {step === 'badge_transition' && badgeTransitionSec && (
-        <main className="min-h-[75vh] flex items-center justify-center px-5 bg-[#FFD93D]/25">
-          <div className="max-w-md w-full bg-white rounded-2xl p-8 text-center shadow-lg border-2 border-[#FFD93D] animate-badge">
-            <div className="w-16 h-16 rounded-full bg-[#FFD93D] text-[#2C2C2C] flex items-center justify-center mx-auto mb-4 shadow-sm">
+        <main className="min-h-[75vh] flex items-center justify-center px-5 bg-[#FFD93D]/20 relative">
+          <CssConfetti count={20} />
+          <div className="max-w-md w-full bg-white rounded-2xl p-8 text-center shadow-xl border-2 border-[#FFD93D] animate-badge relative z-10">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#FFD93D] to-[#F59E0B] text-white flex items-center justify-center mx-auto mb-4 shadow-md">
               <Award className="w-8 h-8" />
             </div>
             <div className="text-xs font-bold uppercase tracking-wider text-[#0D9488]">
-              Challenge {badgeTransitionSec} Complete
+              Challenge {badgeTransitionSec} Cleared
             </div>
             <h2 className="text-2xl font-bold mt-1">
               {bank.sectionBadges[badgeTransitionSec].title}
@@ -1535,12 +1809,13 @@ function CandidateAssessment() {
 
       {/* 9. GAMIFIED RESULTS & BADGE SCREEN */}
       {step === 'results' && (
-        <main className="max-w-2xl mx-auto px-5 py-12">
+        <main className="max-w-2xl mx-auto px-5 py-12 relative">
+          <CssConfetti count={30} />
           {(() => {
             const { s1, s2, s3, total } = computeScores();
             const tier = getBadgeTier(total);
             return (
-              <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-md border border-slate-200 text-center">
+              <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-lg border border-slate-200 text-center relative z-10">
                 <div
                   className="w-20 h-20 rounded-full flex items-center justify-center mx-auto text-white shadow-md animate-badge"
                   style={{ backgroundColor: tier.color }}
@@ -1561,30 +1836,73 @@ function CandidateAssessment() {
                   {tier.desc}
                 </p>
 
-                <div className="mt-6 p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <div className="mt-6 p-5 rounded-xl bg-slate-50 border border-slate-200">
                   <div className="text-xs text-slate-500">Total Score</div>
                   <div className="text-3xl font-bold text-[#2C2C2C]">
                     {total} <span className="text-base font-normal">/ 30</span>
                   </div>
-                  <div className="grid grid-cols-3 gap-2 mt-4 text-xs">
-                    <div className="p-2 bg-white rounded border border-slate-200">
-                      <div className="text-slate-500">Challenge 1</div>
-                      <div className="font-bold">{s1} / 8</div>
+
+                  {/* Visual Breakdown Bars */}
+                  <div className="mt-5 space-y-3 text-left text-xs">
+                    <div>
+                      <div className="flex justify-between font-semibold mb-1">
+                        <span>Challenge 1: Aptitude</span>
+                        <span>{s1} / 8</span>
+                      </div>
+                      <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-[#4A90E2]"
+                          style={{ width: `${(s1 / 8) * 100}%` }}
+                        />
+                      </div>
                     </div>
-                    <div className="p-2 bg-white rounded border border-slate-200">
-                      <div className="text-slate-500">Challenge 2</div>
-                      <div className="font-bold">{s2} / 10</div>
+                    <div>
+                      <div className="flex justify-between font-semibold mb-1">
+                        <span>Challenge 2: Data & Domain</span>
+                        <span>{s2} / 10</span>
+                      </div>
+                      <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-[#0D9488]"
+                          style={{ width: `${(s2 / 10) * 100}%` }}
+                        />
+                      </div>
                     </div>
-                    <div className="p-2 bg-white rounded border border-slate-200">
-                      <div className="text-slate-500">Challenge 3</div>
-                      <div className="font-bold">{s3} / 12</div>
+                    <div>
+                      <div className="flex justify-between font-semibold mb-1">
+                        <span>Challenge 3: Integrity & Ethics</span>
+                        <span>{s3} / 12</span>
+                      </div>
+                      <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-[#F59E0B]"
+                          style={{ width: `${(s3 / 12) * 100}%` }}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
 
+                {/* Earned Section Badges */}
+                <div className="grid grid-cols-3 gap-2 mt-5 text-xs">
+                  {[1, 2, 3].map((num) => (
+                    <div
+                      key={num}
+                      className="p-2.5 rounded-xl bg-amber-50/70 border border-amber-200"
+                    >
+                      <div className="font-bold text-amber-900">
+                        {bank.sectionBadges[num].title}
+                      </div>
+                      <div className="text-[11px] text-amber-700 mt-0.5">
+                        Challenge {num} Badge
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
                 <button
                   onClick={() => setStep('debrief')}
-                  className="mt-6 px-8 py-3 rounded-lg bg-[#4A90E2] text-white font-semibold text-sm"
+                  className="mt-6 px-8 py-3 rounded-lg bg-[#4A90E2] hover:bg-blue-600 text-white font-semibold text-sm transition"
                 >
                   Continue to Research Debrief
                 </button>
