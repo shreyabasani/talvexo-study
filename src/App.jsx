@@ -28,6 +28,10 @@ import {
   getBadgeTier,
 } from './questionsData';
 
+import priyaImg from '../priya.jpeg';
+import rohanImg from '../rohan.jpeg';
+import ananyaImg from '../ananya.jpeg';
+
 const STORAGE_KEY = 'talvexo_assessment_progress_v2';
 const ADMIN_PASSWORD = 'Admin@2025';
 
@@ -37,11 +41,8 @@ function formatTime(secs) {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
-/* Spider-Verse Character Portrait with Animated Lip-Sync Overlay */
+/* Spider-Verse Character JPEG Portrait with Natural-Pace Lip-Sync Overlay */
 function CharacterAvatar({ char, size = 'md', speaking = false }) {
-  const [extIndex, setExtIndex] = useState(0);
-  const extensions = ['jpeg', 'jpg', 'png'];
-
   const dim =
     size === 'sm'
       ? 'w-14 h-14'
@@ -51,9 +52,7 @@ function CharacterAvatar({ char, size = 'md', speaking = false }) {
 
   const isPriya = char.name.includes('Priya');
   const isRohan = char.name.includes('Rohan');
-  const baseName = isPriya ? 'priya' : isRohan ? 'rohan' : 'ananya';
-  const imgFailed = extIndex >= extensions.length;
-  const imgSrc = `/avatars/${baseName}.${extensions[extIndex]}`;
+  const imgSrc = isPriya ? priyaImg : isRohan ? rohanImg : ananyaImg;
 
   const ringColor = isPriya
     ? 'border-teal-400 shadow-teal-200/60'
@@ -63,139 +62,17 @@ function CharacterAvatar({ char, size = 'md', speaking = false }) {
 
   return (
     <div
-      className={`${dim} rounded-full overflow-hidden shadow-lg border-[3px] ${ringColor} bg-gradient-to-b from-slate-100 to-slate-200 shrink-0 relative select-none ${
+      className={`${dim} rounded-full overflow-hidden shadow-lg border-[3px] ${ringColor} bg-slate-100 shrink-0 relative select-none ${
         speaking ? 'animate-head-bob' : ''
       }`}
     >
-      {!imgFailed ? (
-        <img
-          src={imgSrc}
-          alt={char.name}
-          onError={() => setExtIndex((prev) => prev + 1)}
-          className="w-full h-full object-cover object-top"
-        />
-      ) : (
-        /* Detailed Shaded Fallback Portrait (used only if image files aren't found) */
-        <svg viewBox="0 0 120 120" className="w-full h-full">
-          <defs>
-            <radialGradient id="skinGrad" cx="45%" cy="38%" r="55%">
-              <stop offset="0%" stopColor="#F5C3A6" />
-              <stop offset="70%" stopColor="#E09F7D" />
-              <stop offset="100%" stopColor="#C47E5A" />
-            </radialGradient>
-            <linearGradient id="hairGrad" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#334155" />
-              <stop offset="50%" stopColor="#1E293B" />
-              <stop offset="100%" stopColor="#090D16" />
-            </linearGradient>
-            <linearGradient id="suitGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop
-                offset="0%"
-                stopColor={isPriya ? '#254E8A' : isRohan ? '#334155' : '#9F1239'}
-              />
-              <stop
-                offset="100%"
-                stopColor={isPriya ? '#172E59' : isRohan ? '#0F172A' : '#4C0519'}
-              />
-            </linearGradient>
-          </defs>
+      <img
+        src={imgSrc}
+        alt={char.name}
+        className="w-full h-full object-cover object-top"
+      />
 
-          {isPriya && (
-            <path
-              d="M24 54 C20 20, 100 20, 96 54 C100 84, 92 98, 82 96 L38 96 C28 98, 20 84, 24 54 Z"
-              fill="url(#hairGrad)"
-            />
-          )}
-          {!isPriya && !isRohan && <circle cx="60" cy="24" r="14" fill="url(#hairGrad)" />}
-
-          <path
-            d="M16 120 C18 88, 38 80, 60 80 C82 80, 102 88, 104 120 Z"
-            fill="url(#suitGrad)"
-          />
-          <path
-            d="M44 80 L60 106 L76 80 Z"
-            fill={isRohan ? '#BAE6FD' : '#FAF8F5'}
-          />
-
-          <rect x="52" y="66" width="16" height="18" rx="7" fill="#C98360" />
-          <ellipse cx="60" cy="50" rx="21" ry="24" fill="url(#skinGrad)" />
-          <ellipse cx="47" cy="55" rx="4.5" ry="2.5" fill="#E11D48" opacity="0.18" />
-          <ellipse cx="73" cy="55" rx="4.5" ry="2.5" fill="#E11D48" opacity="0.18" />
-
-          <path
-            d="M38 45 C39 22, 81 22, 82 45 C75 31, 47 31, 38 45 Z"
-            fill="url(#hairGrad)"
-          />
-
-          <ellipse cx="51" cy="48" rx="4.2" ry="4.6" fill="#FFFFFF" />
-          <ellipse cx="69" cy="48" rx="4.2" ry="4.6" fill="#FFFFFF" />
-          <circle cx="51.2" cy="48.2" r="2.8" fill="#451A03" />
-          <circle cx="69.2" cy="48.2" r="2.8" fill="#451A03" />
-          <circle cx="50.2" cy="47" r="1.1" fill="#FFFFFF" />
-          <circle cx="68.2" cy="47" r="1.1" fill="#FFFFFF" />
-
-          <path
-            d="M45 41.5 Q51 39.5 56 41.5"
-            stroke="#0F172A"
-            strokeWidth="2.2"
-            fill="none"
-            strokeLinecap="round"
-          />
-          <path
-            d="M64 41.5 Q69 39.5 75 41.5"
-            stroke="#0F172A"
-            strokeWidth="2.2"
-            fill="none"
-            strokeLinecap="round"
-          />
-
-          {!isPriya && !isRohan && (
-            <>
-              <rect
-                x="44"
-                y="43"
-                width="14"
-                height="10"
-                rx="2.5"
-                fill="none"
-                stroke="#1E293B"
-                strokeWidth="2"
-              />
-              <rect
-                x="62"
-                y="43"
-                width="14"
-                height="10"
-                rx="2.5"
-                fill="none"
-                stroke="#1E293B"
-                strokeWidth="2"
-              />
-              <line x1="58" y1="48" x2="62" y2="48" stroke="#1E293B" strokeWidth="2" />
-            </>
-          )}
-
-          {isRohan && (
-            <path
-              d="M41 55 C42 71, 78 71, 79 55 C75 66, 45 66, 41 55 Z"
-              fill="#334155"
-              opacity="0.35"
-            />
-          )}
-
-          {!speaking && (
-            <path
-              d="M52 60 Q60 66 68 60"
-              stroke={isPriya ? '#BE123C' : '#881337'}
-              strokeWidth="2.6"
-              fill="none"
-              strokeLinecap="round"
-            />
-          )}
-        </svg>
-      )}
-
-      {/* Animated Talking Lip-Sync Overlay */}
+      {/* Natural-Pace Talking Lip-Sync Overlay */}
       {speaking && (
         <div
           className="lip-sync-mouth"
@@ -541,7 +418,7 @@ function CandidateAssessment() {
       ? bank.section2
       : bank.section3;
 
-  // Inject confetti + talking lip-sync CSS animations once
+  // Inject confetti + relaxed-speed talking lip-sync CSS animations once
   useEffect(() => {
     const styleId = 'talvexo-character-fx-style';
     if (!document.getElementById(styleId)) {
@@ -563,29 +440,29 @@ function CandidateAssessment() {
           animation-fill-mode: forwards;
         }
         @keyframes lipTalk {
-          0%, 100% { transform: translateX(-50%) scaleY(0.35) scaleX(1.05); border-radius: 999px; }
-          25% { transform: translateX(-50%) scaleY(1.25) scaleX(0.88); border-radius: 40% 40% 60% 60%; }
-          50% { transform: translateX(-50%) scaleY(0.5) scaleX(1.1); border-radius: 999px; }
-          75% { transform: translateX(-50%) scaleY(1.1) scaleX(0.92); border-radius: 45% 45% 55% 55%; }
+          0%, 100% { transform: translateX(-50%) scaleY(0.32) scaleX(1.04); border-radius: 999px; }
+          30% { transform: translateX(-50%) scaleY(1.05) scaleX(0.92); border-radius: 42% 42% 58% 58%; }
+          60% { transform: translateX(-50%) scaleY(0.45) scaleX(1.06); border-radius: 999px; }
+          85% { transform: translateX(-50%) scaleY(0.95) scaleX(0.94); border-radius: 45% 45% 55% 55%; }
         }
         @keyframes headBob {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
-          30% { transform: translateY(-1.5px) rotate(-1deg); }
-          70% { transform: translateY(-1px) rotate(1deg); }
+          35% { transform: translateY(-1.2px) rotate(-0.7deg); }
+          70% { transform: translateY(-0.8px) rotate(0.7deg); }
         }
         .lip-sync-mouth {
           position: absolute;
           left: 50%;
           top: 53%;
-          width: 15%;
-          height: 7.5%;
+          width: 14%;
+          height: 6.8%;
           border: 1.5px solid rgba(255, 255, 255, 0.75);
           box-shadow: inset 0 -2px 3px rgba(0, 0, 0, 0.45);
-          animation: lipTalk 0.34s infinite ease-in-out;
+          animation: lipTalk 0.72s infinite ease-in-out;
           pointer-events: none;
         }
         .animate-head-bob {
-          animation: headBob 0.9s infinite ease-in-out;
+          animation: headBob 1.5s infinite ease-in-out;
         }
         @media (prefers-reduced-motion: reduce) {
           .confetti-piece, .lip-sync-mouth, .animate-head-bob { animation: none; }
@@ -595,12 +472,12 @@ function CandidateAssessment() {
     }
   }, []);
 
-  // Trigger lip-sync animation for 3.2 seconds whenever Welcome screen or Section Intro appears
+  // Trigger lip-sync animation for 3.6 seconds whenever Welcome screen or Section Intro appears
   useEffect(() => {
     if (!isGamified) return;
     if (step === 'welcome' || (step === 'assessment' && qIndex === 0)) {
       setIntroSpeaking(true);
-      const t = setTimeout(() => setIntroSpeaking(false), 3200);
+      const t = setTimeout(() => setIntroSpeaking(false), 3600);
       return () => clearTimeout(t);
     }
     setIntroSpeaking(false);
@@ -914,7 +791,7 @@ function CandidateAssessment() {
       } else {
         handleSectionComplete(false);
       }
-    }, 1850);
+    }, 2000);
   }
 
   function handleTraditionalNext() {
@@ -1266,7 +1143,7 @@ function CandidateAssessment() {
         </header>
       )}
 
-      {/* Top Character Pop-up Reaction with Active Lip-Sync (Gamified Mode Only) */}
+      {/* Top Character Pop-up Reaction with Natural-Pace Lip-Sync (Gamified Mode Only) */}
       {isGamified && popup && (
         <div className="fixed top-24 left-1/2 z-50 w-[92%] max-w-md animate-pop-in">
           <div className="bg-white border-2 border-[#0D9488] rounded-2xl p-4 shadow-2xl flex items-center gap-4">
