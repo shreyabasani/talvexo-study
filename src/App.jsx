@@ -33,7 +33,7 @@ import priyaImg from '../Priya.jpeg';
 import rohanImg from '../Rohan.jpeg';
 import ananyaImg from '../Ananya.jpeg';
 
-const STORAGE_KEY = 'talvexo_assessment_progress_v4';
+const STORAGE_KEY = 'talvexo_assessment_progress_v5';
 const ADMIN_PASSWORD = 'Admin@2025';
 
 function formatTime(secs) {
@@ -369,19 +369,15 @@ function CandidateAssessment() {
   const [muted, setMuted] = useState(false);
 
   const [form, setForm] = useState({
-    full_name: isPreview ? 'Preview Candidate' : '',
-    college_name: isPreview ? 'VIT Business School' : '',
-    email: isPreview ? 'preview@talvexo.edu' : '',
+    full_name: '',
+    college_name: '',
+    email: '',
     gender: '',
     age: '',
     gaming_frequency: '',
     gaming_type: '',
     prior_gamified_experience: '',
-    stream: isPreview
-      ? params.get('stream') === 'finance'
-        ? 'Finance'
-        : 'Marketing'
-      : '',
+    stream: '',
   });
   const [formError, setFormError] = useState('');
   const [resumeOffer, setResumeOffer] = useState(null);
@@ -420,14 +416,17 @@ function CandidateAssessment() {
 
   const warnedRef = useRef(false);
 
+  const activeStream = form.stream || 'Marketing';
   const roleTitle =
     form.stream === 'Finance'
       ? 'Financial Analyst'
       : form.stream === 'Marketing'
       ? 'Sales Executive'
+      : isPreview
+      ? 'Sales Executive'
       : '';
   const isGamified = mode === 'Gamified';
-  const bank = QUESTION_BANK[form.stream] || QUESTION_BANK.Marketing;
+  const bank = QUESTION_BANK[activeStream] || QUESTION_BANK.Marketing;
   const currentQuestions =
     section === 1
       ? bank.section1
@@ -618,9 +617,6 @@ function CandidateAssessment() {
     setPopup(null);
     setTradError('');
     setTourStep(0);
-    if (!form.stream) {
-      setForm((f) => ({ ...f, stream: 'Marketing' }));
-    }
     if (target === 'sec1') {
       setSection(1);
       setQIndex(0);
@@ -782,7 +778,7 @@ function CandidateAssessment() {
     const speaker =
       section === 3
         ? CHARACTERS.ananya
-        : form.stream === 'Finance'
+        : activeStream === 'Finance'
         ? CHARACTERS.rohanFinance
         : CHARACTERS.rohanMarketing;
 
@@ -895,7 +891,7 @@ function CandidateAssessment() {
       gaming_frequency: form.gaming_frequency,
       gaming_type: form.gaming_type,
       prior_gamified_experience: form.prior_gamified_experience,
-      stream: form.stream,
+      stream: activeStream,
       role_title: roleTitle,
       mode_assigned: mode,
       random_decimal: randomDecimal,
@@ -1000,15 +996,13 @@ function CandidateAssessment() {
               onClick={() =>
                 setForm((f) => ({
                   ...f,
-                  stream: f.stream === 'Marketing' ? 'Finance' : 'Marketing',
+                  stream: f.stream === 'Finance' ? 'Marketing' : 'Finance',
                 }))
               }
               className="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-2.5 py-1 rounded font-semibold"
             >
               Stream:{' '}
-              <span className="text-teal-400">
-                {form.stream || 'Marketing'}
-              </span>
+              <span className="text-teal-400">{activeStream}</span>
             </button>
 
             {isGamified && (
@@ -1304,7 +1298,7 @@ function CandidateAssessment() {
         </main>
       )}
 
-      {/* 3. REGISTRATION SCREEN (No Pre-Filled Data) */}
+      {/* 3. REGISTRATION SCREEN (Zero Pre-Filled Data) */}
       {step === 'register' && (
         <main className="max-w-xl mx-auto px-5 py-10">
           {resumeOffer && (
@@ -1349,7 +1343,8 @@ function CandidateAssessment() {
               </label>
               <input
                 type="text"
-                autoComplete="off"
+                name="tvx_candidate_fullname"
+                autoComplete="new-password"
                 value={form.full_name}
                 onChange={(e) =>
                   setForm({ ...form, full_name: e.target.value })
@@ -1365,7 +1360,8 @@ function CandidateAssessment() {
               </label>
               <input
                 type="text"
-                autoComplete="off"
+                name="tvx_candidate_college"
+                autoComplete="new-password"
                 value={form.college_name}
                 onChange={(e) =>
                   setForm({ ...form, college_name: e.target.value })
@@ -1381,7 +1377,8 @@ function CandidateAssessment() {
               </label>
               <input
                 type="email"
-                autoComplete="off"
+                name="tvx_candidate_email"
+                autoComplete="new-password"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
                 className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
@@ -1412,6 +1409,7 @@ function CandidateAssessment() {
                   type="number"
                   min="18"
                   max="60"
+                  autoComplete="off"
                   value={form.age}
                   onChange={(e) => setForm({ ...form, age: e.target.value })}
                   className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
@@ -1595,7 +1593,7 @@ function CandidateAssessment() {
 
             <div className="mt-5 p-4 rounded-xl bg-gradient-to-r from-teal-50 to-blue-50 border border-teal-100 text-sm text-[#2C2C2C] leading-relaxed">
               “
-              {form.stream === 'Finance'
+              {activeStream === 'Finance'
                 ? CHARACTERS.priya.welcomeFinance
                 : CHARACTERS.priya.welcomeMarketing}
               ”
@@ -1660,7 +1658,7 @@ function CandidateAssessment() {
                 char={
                   section === 3
                     ? CHARACTERS.ananya
-                    : form.stream === 'Finance'
+                    : activeStream === 'Finance'
                     ? CHARACTERS.rohanFinance
                     : CHARACTERS.rohanMarketing
                 }
@@ -1670,7 +1668,7 @@ function CandidateAssessment() {
                 <div className="text-xs font-bold text-[#4A90E2]">
                   {section === 3
                     ? `${CHARACTERS.ananya.name} • ${CHARACTERS.ananya.role}`
-                    : form.stream === 'Finance'
+                    : activeStream === 'Finance'
                     ? `${CHARACTERS.rohanFinance.name} • ${CHARACTERS.rohanFinance.role}`
                     : `${CHARACTERS.rohanMarketing.name} • ${CHARACTERS.rohanMarketing.role}`}
                 </div>
@@ -1678,7 +1676,7 @@ function CandidateAssessment() {
                   “
                   {section === 3
                     ? CHARACTERS.ananya.intro
-                    : form.stream === 'Finance'
+                    : activeStream === 'Finance'
                     ? CHARACTERS.rohanFinance.intro
                     : CHARACTERS.rohanMarketing.intro}
                   ”
