@@ -16,7 +16,6 @@ import {
   Check,
   Coins,
   Lightbulb,
-  Copy,
   HelpCircle,
 } from 'lucide-react';
 import { supabase } from './supabaseClient';
@@ -34,18 +33,13 @@ import priyaImg from '../Priya.jpeg';
 import rohanImg from '../Rohan.jpeg';
 import ananyaImg from '../Ananya.jpeg';
 
-const STORAGE_KEY = 'talvexo_assessment_progress_v3';
+const STORAGE_KEY = 'talvexo_assessment_progress_v4';
 const ADMIN_PASSWORD = 'Admin@2025';
 
 function formatTime(secs) {
   const m = Math.floor(Math.max(0, secs) / 60);
   const s = Math.max(0, secs) % 60;
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-}
-
-function generateParticipantCode() {
-  const digits = Math.floor(1000 + Math.random() * 9000);
-  return `TVX-${digits}`;
 }
 
 /* Gamified Mode Character Portrait */
@@ -383,17 +377,17 @@ function CandidateAssessment() {
     gaming_frequency: '',
     gaming_type: '',
     prior_gamified_experience: '',
-    stream: params.get('stream') === 'finance' ? 'Finance' : 'Marketing',
+    stream: isPreview
+      ? params.get('stream') === 'finance'
+        ? 'Finance'
+        : 'Marketing'
+      : '',
   });
   const [formError, setFormError] = useState('');
   const [resumeOffer, setResumeOffer] = useState(null);
 
   const [mode, setMode] = useState(initialMode);
   const [randomDecimal, setRandomDecimal] = useState(0.25);
-  const [participantCode, setParticipantCode] = useState(() =>
-    generateParticipantCode()
-  );
-  const [copiedCode, setCopiedCode] = useState(false);
 
   const [section, setSection] = useState(1);
   const [qIndex, setQIndex] = useState(0);
@@ -427,7 +421,11 @@ function CandidateAssessment() {
   const warnedRef = useRef(false);
 
   const roleTitle =
-    form.stream === 'Finance' ? 'Financial Analyst' : 'Sales Executive';
+    form.stream === 'Finance'
+      ? 'Financial Analyst'
+      : form.stream === 'Marketing'
+      ? 'Sales Executive'
+      : '';
   const isGamified = mode === 'Gamified';
   const bank = QUESTION_BANK[form.stream] || QUESTION_BANK.Marketing;
   const currentQuestions =
@@ -524,7 +522,6 @@ function CandidateAssessment() {
             form,
             mode,
             randomDecimal,
-            participantCode,
             section,
             qIndex,
             timeLeft,
@@ -549,7 +546,6 @@ function CandidateAssessment() {
     form,
     mode,
     randomDecimal,
-    participantCode,
     section,
     qIndex,
     timeLeft,
@@ -622,6 +618,9 @@ function CandidateAssessment() {
     setPopup(null);
     setTradError('');
     setTourStep(0);
+    if (!form.stream) {
+      setForm((f) => ({ ...f, stream: 'Marketing' }));
+    }
     if (target === 'sec1') {
       setSection(1);
       setQIndex(0);
@@ -654,9 +653,6 @@ function CandidateAssessment() {
     setForm(resumeOffer.form);
     setMode(resumeOffer.mode);
     setRandomDecimal(resumeOffer.randomDecimal);
-    if (resumeOffer.participantCode) {
-      setParticipantCode(resumeOffer.participantCode);
-    }
     setSection(resumeOffer.section);
     setQIndex(resumeOffer.qIndex);
     setTimeLeft(resumeOffer.timeLeft);
@@ -715,7 +711,6 @@ function CandidateAssessment() {
     const assigned = rand < 0.5 ? 'Gamified' : 'Traditional';
     setRandomDecimal(rand);
     setMode(assigned);
-    setParticipantCode(generateParticipantCode());
 
     setSection(1);
     setQIndex(0);
@@ -892,7 +887,6 @@ function CandidateAssessment() {
     const tokensSpent = isGamified ? INITIAL_INTEL_TOKENS - tokensLeft : 0;
 
     const payload = {
-      participant_code: participantCode,
       full_name: form.full_name,
       college_name: form.college_name,
       email: form.email,
@@ -965,14 +959,6 @@ function CandidateAssessment() {
     }
   }
 
-  function handleCopyCode() {
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      navigator.clipboard.writeText(participantCode);
-      setCopiedCode(true);
-      setTimeout(() => setCopiedCode(false), 2500);
-    }
-  }
-
   return (
     <div
       className={`min-h-screen font-sans ${
@@ -1019,7 +1005,10 @@ function CandidateAssessment() {
               }
               className="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-2.5 py-1 rounded font-semibold"
             >
-              Stream: <span className="text-teal-400">{form.stream}</span>
+              Stream:{' '}
+              <span className="text-teal-400">
+                {form.stream || 'Marketing'}
+              </span>
             </button>
 
             {isGamified && (
@@ -1315,7 +1304,7 @@ function CandidateAssessment() {
         </main>
       )}
 
-      {/* 3. REGISTRATION SCREEN */}
+      {/* 3. REGISTRATION SCREEN (No Pre-Filled Data) */}
       {step === 'register' && (
         <main className="max-w-xl mx-auto px-5 py-10">
           {resumeOffer && (
@@ -1343,6 +1332,7 @@ function CandidateAssessment() {
 
           <form
             onSubmit={handleRegisterSubmit}
+            autoComplete="off"
             className="border border-slate-200 rounded-xl p-6 sm:p-8 bg-white shadow-xs space-y-4"
           >
             <h2 className="text-xl font-bold">Candidate Registration</h2>
@@ -1359,6 +1349,7 @@ function CandidateAssessment() {
               </label>
               <input
                 type="text"
+                autoComplete="off"
                 value={form.full_name}
                 onChange={(e) =>
                   setForm({ ...form, full_name: e.target.value })
@@ -1374,6 +1365,7 @@ function CandidateAssessment() {
               </label>
               <input
                 type="text"
+                autoComplete="off"
                 value={form.college_name}
                 onChange={(e) =>
                   setForm({ ...form, college_name: e.target.value })
@@ -1389,10 +1381,11 @@ function CandidateAssessment() {
               </label>
               <input
                 type="email"
+                autoComplete="off"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
                 className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
-                placeholder="you@college.edu"
+                placeholder="Enter your email address"
               />
             </div>
 
@@ -1422,7 +1415,7 @@ function CandidateAssessment() {
                   value={form.age}
                   onChange={(e) => setForm({ ...form, age: e.target.value })}
                   className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
-                  placeholder="e.g. 23"
+                  placeholder="Enter your age"
                 />
               </div>
             </div>
@@ -1507,8 +1500,11 @@ function CandidateAssessment() {
                 onChange={(e) => setForm({ ...form, stream: e.target.value })}
                 className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white"
               >
-                <option value="Marketing">Marketing</option>
+                <option value="" disabled>
+                  Please choose your specialisation
+                </option>
                 <option value="Finance">Finance</option>
+                <option value="Marketing">Marketing</option>
               </select>
             </div>
 
@@ -2197,25 +2193,6 @@ function CandidateAssessment() {
               <span>Submission Recorded</span>
             </div>
 
-            <div className="my-5 p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-3">
-              <div>
-                <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                  Participant Completion Code
-                </div>
-                <div className="text-xl font-mono font-bold text-[#2C2C2C] mt-0.5">
-                  {participantCode}
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={handleCopyCode}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-xs font-semibold text-slate-700 transition"
-              >
-                <Copy className="w-3.5 h-3.5" />
-                {copiedCode ? 'Copied!' : 'Copy Code'}
-              </button>
-            </div>
-
             <div className="space-y-3 text-sm text-slate-600 leading-relaxed">
               <p>
                 Thank you for participating in this research study. Your
@@ -2324,7 +2301,6 @@ function AdminPanel() {
   function exportSPSSCSV() {
     if (!filtered.length) return;
     const spssHeaders = [
-      'participant_code',
       'submitted_at',
       'full_name',
       'college_name',
@@ -2380,7 +2356,6 @@ function AdminPanel() {
       spssHeaders.join(','),
       ...filtered.map((r) => {
         const mapped = {
-          participant_code: r.participant_code ?? '',
           submitted_at: r.submitted_at ?? '',
           full_name: r.full_name ?? '',
           college_name: r.college_name ?? '',
@@ -2563,7 +2538,6 @@ function AdminPanel() {
             <table className="w-full text-xs text-left">
               <thead className="bg-slate-50 border-b border-slate-200 text-slate-600">
                 <tr>
-                  <th className="p-3">Ref ID</th>
                   <th className="p-3">Name</th>
                   <th className="p-3">Stream</th>
                   <th className="p-3">Mode</th>
@@ -2579,9 +2553,6 @@ function AdminPanel() {
               <tbody>
                 {filtered.map((r) => (
                   <tr key={r.id} className="border-b border-slate-100">
-                    <td className="p-3 font-mono font-semibold text-slate-600">
-                      {r.participant_code ?? '-'}
-                    </td>
                     <td className="p-3 font-medium">{r.full_name}</td>
                     <td className="p-3">{r.stream}</td>
                     <td className="p-3">
