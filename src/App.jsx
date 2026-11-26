@@ -48,7 +48,7 @@ function generateParticipantCode() {
   return `TVX-${digits}`;
 }
 
-/* Clean Spider-Verse Character JPEG Portrait (Gamified Mode) */
+/* Gamified Mode Character Portrait */
 function CharacterAvatar({ char, size = 'md' }) {
   const dim =
     size === 'sm'
@@ -163,7 +163,7 @@ function MissionRoadmap({ currentSection, highlight = false }) {
 }
 
 function TimerPill({ seconds, isGamified }) {
-  let border = '#4A90E2';
+  let border = isGamified ? '#4A90E2' : '#64748B';
   let text = '#2C2C2C';
   let pulse = '';
   if (seconds <= 30) {
@@ -176,7 +176,9 @@ function TimerPill({ seconds, isGamified }) {
   }
   return (
     <div
-      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white font-semibold text-xs sm:text-sm shadow-sm border-2 transition-colors ${pulse}`}
+      className={`inline-flex items-center gap-1.5 px-3 py-1.5 bg-white font-semibold text-xs sm:text-sm ${
+        isGamified ? 'rounded-full shadow-sm border-2' : 'border'
+      } transition-colors ${pulse}`}
       style={{ borderColor: border, color: text }}
     >
       <Clock className="w-4 h-4 shrink-0" />
@@ -393,12 +395,10 @@ function CandidateAssessment() {
   const [sectionTimes, setSectionTimes] = useState({ 1: 0, 2: 0, 3: 0 });
   const [tradError, setTradError] = useState('');
 
-  // Telemetry: Tab Switches & Per-Question Response Timings
   const [tabSwitches, setTabSwitches] = useState(0);
   const [questionTimings, setQuestionTimings] = useState({});
   const questionStartRef = useRef(Date.now());
 
-  // 2-Step Interactive "How to Play" Tour on First Gamified Question
   const [tourStep, setTourStep] = useState(0);
 
   const [tokensLeft, setTokensLeft] = useState(INITIAL_INTEL_TOKENS);
@@ -430,7 +430,6 @@ function CandidateAssessment() {
       ? bank.section2
       : bank.section3;
 
-  // Inject confetti CSS animation once
   useEffect(() => {
     const styleId = 'talvexo-character-fx-style';
     if (!document.getElementById(styleId)) {
@@ -459,7 +458,6 @@ function CandidateAssessment() {
     }
   }, []);
 
-  // Track tab-switches / visibility changes during active assessment
   useEffect(() => {
     if (step !== 'assessment') return;
     function handleVisibilityChange() {
@@ -472,14 +470,12 @@ function CandidateAssessment() {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [step]);
 
-  // Reset per-question timer whenever a new question/section renders
   useEffect(() => {
     if (step === 'assessment') {
       questionStartRef.current = Date.now();
     }
   }, [step, section, qIndex]);
 
-  // Keyboard shortcuts A/B/C in Gamified step-by-step mode
   useEffect(() => {
     if (!isGamified || step !== 'assessment' || popup || tourStep > 0) return;
     function onKeyDown(e) {
@@ -728,7 +724,7 @@ function CandidateAssessment() {
       soundEngine.playClick();
       setStep('welcome');
     } else {
-      setStep('assessment');
+      setStep('trad_welcome');
     }
   }
 
@@ -814,13 +810,14 @@ function CandidateAssessment() {
     }, 2000);
   }
 
-  // Google Form-style Traditional Section Submission (all questions in current section)
   function handleTraditionalSectionSubmit(e) {
     e.preventDefault();
     const sectionAns = answers[section] || {};
     const allAnswered = currentQuestions.every((q) => Boolean(sectionAns[q.id]));
     if (!allAnswered) {
-      setTradError('Please answer every question in this section before continuing.');
+      setTradError(
+        'Please answer every question in this section before continuing.'
+      );
       return;
     }
     setTradError('');
@@ -980,7 +977,6 @@ function CandidateAssessment() {
           : 'bg-white'
       } text-[#2C2C2C]`}
     >
-      {/* FULL INSPECTION & PREVIEW CONTROL BAR */}
       {isPreview && (
         <div className="bg-slate-900 text-white text-xs px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 border-b border-amber-500">
           <div className="flex items-center gap-2">
@@ -1034,16 +1030,19 @@ function CandidateAssessment() {
               <option value="landing">Screen: 1. Landing Page</option>
               <option value="consent">Screen: 2. Consent</option>
               <option value="register">Screen: 3. Registration</option>
-              <option value="welcome">Screen: 4. Welcome (Priya)</option>
-              <option value="sec1">Screen: 5. Section 1 (Briefs)</option>
-              <option value="sec2">Screen: 6. Section 2 (Dashboard)</option>
-              <option value="sec3">Screen: 7. Section 3 (Ethics)</option>
+              <option value="trad_welcome">
+                Screen: 4a. Traditional Welcome
+              </option>
+              <option value="welcome">Screen: 4b. Gamified Welcome</option>
+              <option value="sec1">Screen: 5. Section 1</option>
+              <option value="sec2">Screen: 6. Section 2</option>
+              <option value="sec3">Screen: 7. Section 3</option>
               <option value="badge_transition">
-                Screen: 8. Badge Transition
+                Screen: 8. Badge Transition (G)
               </option>
               <option value="buffer">Screen: 9. 10s Buffer</option>
               <option value="survey">Screen: 10. Post-Test Survey</option>
-              <option value="results">Screen: 11. Results & Badge</option>
+              <option value="results">Screen: 11. Results & Badge (G)</option>
               <option value="debrief">Screen: 12. Debrief</option>
             </select>
 
@@ -1089,15 +1088,14 @@ function CandidateAssessment() {
         </div>
       )}
 
-      {/* Top Navigation Bar during Assessment */}
       {(step === 'welcome' ||
         step === 'assessment' ||
-        step === 'badge_transition') && (
+        (isGamified && step === 'badge_transition')) && (
         <header
           className={`sticky top-0 z-30 px-3 sm:px-4 py-3 border-b ${
             isGamified
               ? 'bg-white/95 backdrop-blur border-slate-200 shadow-xs'
-              : 'bg-white border-slate-200'
+              : 'bg-white border-slate-300'
           }`}
         >
           <div className="max-w-4xl mx-auto flex flex-wrap items-center justify-between gap-2.5">
@@ -1173,7 +1171,6 @@ function CandidateAssessment() {
         </header>
       )}
 
-      {/* Interactive 2-Step "How to Play" Guided Tour Banner (Gamified Only) */}
       {isGamified && step === 'assessment' && tourStep > 0 && (
         <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-4">
           <div className="bg-slate-900 text-white rounded-2xl p-4 shadow-xl border border-teal-400 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -1219,7 +1216,6 @@ function CandidateAssessment() {
         </div>
       )}
 
-      {/* Top Character Pop-up Reaction (Gamified Mode Only) */}
       {isGamified && popup && (
         <div className="fixed top-24 left-1/2 z-50 w-[92%] max-w-md animate-pop-in">
           <div className="bg-white border-2 border-[#0D9488] rounded-2xl p-4 shadow-2xl flex items-center gap-4">
@@ -1525,7 +1521,55 @@ function CandidateAssessment() {
         </main>
       )}
 
-      {/* 4. GAMIFIED WELCOME SCREEN (Priya Sharma) */}
+      {/* 4A. PLAIN TRADITIONAL WELCOME SCREEN */}
+      {step === 'trad_welcome' && (
+        <main className="max-w-2xl mx-auto px-5 py-12">
+          <div className="bg-white border border-slate-300 p-6 sm:p-8 space-y-4">
+            <h2 className="text-xl font-bold text-[#2C2C2C]">
+              Assessment Overview
+            </h2>
+            <p className="text-sm text-slate-700 leading-relaxed">
+              This assessment evaluates candidates for the{' '}
+              <strong>{roleTitle}</strong> position across three multiple-choice
+              sections covering quantitative/analytical reasoning, data and
+              domain interpretation, and workplace judgment.
+            </p>
+            <ul className="list-disc pl-5 text-sm text-slate-700 space-y-1.5">
+              <li>
+                <strong>Section 1 ({formatTime(SECTION_TIMERS[1])}):</strong>{' '}
+                {bank.sectionTitles[1]}
+              </li>
+              <li>
+                <strong>Section 2 ({formatTime(SECTION_TIMERS[2])}):</strong>{' '}
+                {bank.sectionTitles[2]}
+              </li>
+              <li>
+                <strong>Section 3 ({formatTime(SECTION_TIMERS[3])}):</strong>{' '}
+                {bank.sectionTitles[3]}
+              </li>
+            </ul>
+            <p className="text-sm text-slate-700 leading-relaxed">
+              Each section has its own timer and is submitted as a complete set
+              of questions. Please answer all questions carefully before moving to
+              the next section.
+            </p>
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  questionStartRef.current = Date.now();
+                  setStep('assessment');
+                }}
+                className="px-6 py-2.5 bg-[#2C2C2C] hover:bg-slate-800 text-white text-sm font-semibold"
+              >
+                Start Assessment
+              </button>
+            </div>
+          </div>
+        </main>
+      )}
+
+      {/* 4B. GAMIFIED WELCOME SCREEN */}
       {step === 'welcome' && (
         <main className="max-w-2xl mx-auto px-5 py-12">
           <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-md border border-slate-200">
@@ -1599,7 +1643,7 @@ function CandidateAssessment() {
         </main>
       )}
 
-      {/* 5. ACTIVE ASSESSMENT SCREEN: GAMIFIED (Step-by-Step) vs TRADITIONAL (Google Form Style) */}
+      {/* 5A. GAMIFIED ASSESSMENT SCREEN */}
       {step === 'assessment' && isGamified && (
         <main className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
           {qIndex === 0 && (
@@ -1760,7 +1804,7 @@ function CandidateAssessment() {
         </main>
       )}
 
-      {/* TRADITIONAL MODE: GOOGLE FORM-STYLE ALL-IN-ONE SECTION MCQ FORM */}
+      {/* 5B. TRADITIONAL ASSESSMENT SCREEN */}
       {step === 'assessment' && !isGamified && (
         <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
           {section === 2 && (
@@ -1842,7 +1886,7 @@ function CandidateAssessment() {
       )}
 
       {/* 6. GAMIFIED SECTION COMPLETION BADGE TRANSITION */}
-      {step === 'badge_transition' && badgeTransitionSec && (
+      {isGamified && step === 'badge_transition' && badgeTransitionSec && (
         <main className="min-h-[75vh] flex items-center justify-center px-5 bg-[#FFD93D]/20 relative">
           <CssConfetti count={20} />
           <div className="max-w-md w-full bg-white rounded-2xl p-8 text-center shadow-xl border-2 border-[#FFD93D] animate-badge relative z-10">
@@ -2026,7 +2070,7 @@ function CandidateAssessment() {
       )}
 
       {/* 9. GAMIFIED RESULTS & BADGE SCREEN */}
-      {step === 'results' && (
+      {isGamified && step === 'results' && (
         <main className="max-w-2xl mx-auto px-5 py-12 relative">
           <CssConfetti count={30} />
           {(() => {
@@ -2132,7 +2176,7 @@ function CandidateAssessment() {
         </main>
       )}
 
-      {/* 10. DEBRIEF & THANK YOU SCREEN WITH COPYABLE PARTICIPANT REFERENCE ID */}
+      {/* 10. DEBRIEF & THANK YOU SCREEN */}
       {step === 'debrief' && (
         <main className="max-w-xl mx-auto px-5 py-16">
           <div className="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 shadow-xs">
