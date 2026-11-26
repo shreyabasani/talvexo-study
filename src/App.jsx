@@ -361,7 +361,16 @@ function CandidateAssessment() {
       : new URLSearchParams();
   const isPreview = params.get('preview') === 'true';
 
-  const [step, setStep] = useState(isPreview ? 'welcome' : 'landing');
+  const initialMode =
+    params.get('mode') === 'traditional' ? 'Traditional' : 'Gamified';
+
+  const [step, setStep] = useState(
+    isPreview
+      ? initialMode === 'Gamified'
+        ? 'welcome'
+        : 'trad_welcome'
+      : 'landing'
+  );
   const [consentChecked, setConsentChecked] = useState(false);
   const [muted, setMuted] = useState(false);
 
@@ -379,9 +388,7 @@ function CandidateAssessment() {
   const [formError, setFormError] = useState('');
   const [resumeOffer, setResumeOffer] = useState(null);
 
-  const [mode, setMode] = useState(
-    params.get('mode') === 'traditional' ? 'Traditional' : 'Gamified'
-  );
+  const [mode, setMode] = useState(initialMode);
   const [randomDecimal, setRandomDecimal] = useState(0.25);
   const [participantCode, setParticipantCode] = useState(() =>
     generateParticipantCode()
@@ -990,9 +997,14 @@ function CandidateAssessment() {
 
           <div className="flex flex-wrap items-center gap-2">
             <button
-              onClick={() =>
-                setMode(mode === 'Gamified' ? 'Traditional' : 'Gamified')
-              }
+              onClick={() => {
+                const nextMode =
+                  mode === 'Gamified' ? 'Traditional' : 'Gamified';
+                setMode(nextMode);
+                if (step === 'welcome' || step === 'trad_welcome') {
+                  setStep(nextMode === 'Gamified' ? 'welcome' : 'trad_welcome');
+                }
+              }}
               className="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-2.5 py-1 rounded font-semibold"
             >
               Mode: <span className="text-amber-400">{mode}</span>
@@ -1031,18 +1043,18 @@ function CandidateAssessment() {
               <option value="consent">Screen: 2. Consent</option>
               <option value="register">Screen: 3. Registration</option>
               <option value="trad_welcome">
-                Screen: 4a. Traditional Welcome
+                Screen: A. Traditional Welcome
               </option>
-              <option value="welcome">Screen: 4b. Gamified Welcome</option>
+              <option value="welcome">Screen: B. Gamified Welcome</option>
               <option value="sec1">Screen: 5. Section 1</option>
               <option value="sec2">Screen: 6. Section 2</option>
               <option value="sec3">Screen: 7. Section 3</option>
               <option value="badge_transition">
-                Screen: 8. Badge Transition (G)
+                Screen: 8. Badge Transition (B)
               </option>
               <option value="buffer">Screen: 9. 10s Buffer</option>
               <option value="survey">Screen: 10. Post-Test Survey</option>
-              <option value="results">Screen: 11. Results & Badge (G)</option>
+              <option value="results">Screen: 11. Results & Badge (B)</option>
               <option value="debrief">Screen: 12. Debrief</option>
             </select>
 
@@ -1521,8 +1533,8 @@ function CandidateAssessment() {
         </main>
       )}
 
-      {/* 4A. PLAIN TRADITIONAL WELCOME SCREEN */}
-      {step === 'trad_welcome' && (
+      {/* A. TRADITIONAL WELCOME SCREEN */}
+      {!isGamified && step === 'trad_welcome' && (
         <main className="max-w-2xl mx-auto px-5 py-12">
           <div className="bg-white border border-slate-300 p-6 sm:p-8 space-y-4">
             <h2 className="text-xl font-bold text-[#2C2C2C]">
@@ -1569,8 +1581,8 @@ function CandidateAssessment() {
         </main>
       )}
 
-      {/* 4B. GAMIFIED WELCOME SCREEN */}
-      {step === 'welcome' && (
+      {/* B. GAMIFIED WELCOME SCREEN */}
+      {isGamified && step === 'welcome' && (
         <main className="max-w-2xl mx-auto px-5 py-12">
           <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-md border border-slate-200">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
@@ -1643,7 +1655,7 @@ function CandidateAssessment() {
         </main>
       )}
 
-      {/* 5A. GAMIFIED ASSESSMENT SCREEN */}
+      {/* B. GAMIFIED ASSESSMENT SCREEN */}
       {step === 'assessment' && isGamified && (
         <main className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
           {qIndex === 0 && (
@@ -1804,7 +1816,7 @@ function CandidateAssessment() {
         </main>
       )}
 
-      {/* 5B. TRADITIONAL ASSESSMENT SCREEN */}
+      {/* A. TRADITIONAL ASSESSMENT SCREEN */}
       {step === 'assessment' && !isGamified && (
         <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
           {section === 2 && (
@@ -1885,7 +1897,7 @@ function CandidateAssessment() {
         </main>
       )}
 
-      {/* 6. GAMIFIED SECTION COMPLETION BADGE TRANSITION */}
+      {/* B. GAMIFIED SECTION COMPLETION BADGE TRANSITION */}
       {isGamified && step === 'badge_transition' && badgeTransitionSec && (
         <main className="min-h-[75vh] flex items-center justify-center px-5 bg-[#FFD93D]/20 relative">
           <CssConfetti count={20} />
@@ -2069,7 +2081,7 @@ function CandidateAssessment() {
         </main>
       )}
 
-      {/* 9. GAMIFIED RESULTS & BADGE SCREEN */}
+      {/* B. GAMIFIED RESULTS & BADGE SCREEN */}
       {isGamified && step === 'results' && (
         <main className="max-w-2xl mx-auto px-5 py-12 relative">
           <CssConfetti count={30} />
@@ -2485,20 +2497,20 @@ function AdminPanel() {
             <div className="text-2xl font-bold mt-1">{rows.length}</div>
           </div>
           <div className="bg-white p-4 rounded-xl border border-slate-200">
-            <div className="text-xs text-slate-500">Mode Split (G / T)</div>
+            <div className="text-xs text-slate-500">Mode Split (B / A)</div>
             <div className="text-2xl font-bold mt-1">
               {gamifiedRows.length} / {tradRows.length}
             </div>
           </div>
           <div className="bg-white p-4 rounded-xl border border-slate-200">
-            <div className="text-xs text-slate-500">Avg Enjoyment (G vs T)</div>
+            <div className="text-xs text-slate-500">Avg Enjoyment (B vs A)</div>
             <div className="text-lg font-bold mt-1 text-[#0D9488]">
               {avg(gamifiedRows, 'engagement_avg')} vs{' '}
               {avg(tradRows, 'engagement_avg')}
             </div>
           </div>
           <div className="bg-white p-4 rounded-xl border border-slate-200">
-            <div className="text-xs text-slate-500">Avg Fairness (G vs T)</div>
+            <div className="text-xs text-slate-500">Avg Fairness (B vs A)</div>
             <div className="text-lg font-bold mt-1 text-[#4A90E2]">
               {avg(gamifiedRows, 'fairness_avg')} vs{' '}
               {avg(tradRows, 'fairness_avg')}
@@ -2514,8 +2526,8 @@ function AdminPanel() {
               className="border border-slate-300 rounded-lg px-3 py-2 text-xs font-medium bg-white"
             >
               <option value="All">All Modes</option>
-              <option value="Gamified">Gamified Only</option>
-              <option value="Traditional">Traditional Only</option>
+              <option value="Gamified">Gamified (B) Only</option>
+              <option value="Traditional">Traditional (A) Only</option>
             </select>
             <select
               value={streamFilter}
