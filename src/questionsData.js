@@ -563,24 +563,24 @@ export const QUESTION_BANK = {
       },
       {
         id: 'F_S3_Q2',
-        tag: 'Plant Expansion • Expense Capitalization Pressure',
-        clue: 'Ananya’s Governance Brief: Under Ind AS / IFRS, routine repairs and maintenance are period OpEx—capitalizing them or omitting incurred invoices violates accounting standards.',
+        tag: 'Plant Operations • Expense Classification',
+        clue: 'Ananya’s Governance Brief: Under Ind AS / IFRS, routine repairs and maintenance are period operating expenses—capitalizing them or omitting incurred invoices violates accounting standards.',
         question:
-          'To meet Q4 EBITDA targets, a Business Unit Head asks you to classify ₹18,00,000 of routine annual machinery maintenance expenses as "Capital Expenditure (CapEx)" so the cost is depreciated over 5 years instead of hitting this quarter’s P&L. How do you handle this?',
+          'During an operational budget review at a bottling plant, a Business Unit Head asks you to classify ₹18,00,000 of routine annual machinery servicing expenses as "Capital Expenditure (CapEx)" so the cost is depreciated over 5 years instead of hitting the current operating statement. How do you handle this?',
         options: [
           {
             id: 'A',
-            text: 'Reclassify the ₹18,00,000 as CapEx for Q4 to support the unit’s EBITDA target, and plan to reverse the entry gradually next year.',
+            text: 'Reclassify the ₹18,00,000 as CapEx for the current reporting cycle to support the plant’s operating margin, and plan to reverse the entry gradually next year.',
             marks: 0,
           },
           {
             id: 'B',
-            text: 'Decline the CapEx reclassification citing accounting standards, present the accurate EBITDA impact transparently, and highlight legitimate discretionary OpEx deferrals if cost savings are needed.',
+            text: 'Decline the CapEx reclassification citing accounting standards, present the accurate operating margin transparently, and highlight legitimate discretionary cost deferrals if savings are needed.',
             marks: 4,
           },
           {
             id: 'C',
-            text: 'Leave the ₹18,00,000 invoice unrecorded in the Q4 ledger until Q1 so neither Q4 EBITDA nor CapEx rules are affected.',
+            text: 'Hold back the ₹18,00,000 invoice from the current ledger until the next accounting period so neither operating expenses nor CapEx rules are affected.',
             marks: 2,
           },
         ],
