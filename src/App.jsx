@@ -16,7 +16,6 @@ import {
   Check,
   Coins,
   Lightbulb,
-  HelpCircle,
 } from 'lucide-react';
 import { supabase } from './supabaseClient';
 import { soundEngine } from './sound';
@@ -42,14 +41,24 @@ function formatTime(secs) {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
+function safePlaySound(fnName) {
+  try {
+    if (soundEngine && typeof soundEngine[fnName] === 'function') {
+      soundEngine[fnName]();
+    }
+  } catch {
+    // Ignore mobile WebAudio restrictions
+  }
+}
+
 /* Gamified Mode Character Portrait */
 function CharacterAvatar({ char, size = 'md' }) {
   const dim =
     size === 'sm'
-      ? 'w-14 h-14'
+      ? 'w-12 h-12 sm:w-14 sm:h-14'
       : size === 'lg'
-      ? 'w-24 h-24'
-      : 'w-20 h-20';
+      ? 'w-20 h-20 sm:w-24 sm:h-24'
+      : 'w-16 h-16 sm:w-20 sm:h-20';
 
   const isPriya = char.name.includes('Priya');
   const isRohan = char.name.includes('Rohan');
@@ -63,7 +72,7 @@ function CharacterAvatar({ char, size = 'md' }) {
 
   return (
     <div
-      className={`${dim} rounded-full overflow-hidden shadow-lg border-[3px] ${ringColor} bg-slate-100 shrink-0 relative select-none`}
+      className={`${dim} rounded-full overflow-hidden shadow-md border-[3px] ${ringColor} bg-slate-100 shrink-0 relative select-none`}
     >
       <img
         src={imgSrc}
@@ -100,38 +109,34 @@ function CssConfetti({ count = 24 }) {
   );
 }
 
-function MissionRoadmap({ currentSection, highlight = false }) {
+function MissionRoadmap({ currentSection }) {
   const stages = [
-    { num: 1, label: 'Executive Briefs' },
-    { num: 2, label: 'Analytics Terminal' },
-    { num: 3, label: 'Compliance Desk' },
+    { num: 1, shortLabel: '1. Briefs', label: '1. Executive Briefs' },
+    { num: 2, shortLabel: '2. Data', label: '2. Analytics Terminal' },
+    { num: 3, shortLabel: '3. Ethics', label: '3. Compliance Desk' },
   ];
 
   return (
-    <div
-      className={`flex items-center justify-between max-w-xl mx-auto mt-2.5 pt-2 border-t border-slate-100 rounded-lg px-2 transition ${
-        highlight ? 'ring-2 ring-[#0D9488] bg-teal-50/60' : ''
-      }`}
-    >
+    <div className="flex items-center justify-between max-w-xl mx-auto mt-2 pt-2 border-t border-slate-100 px-1">
       {stages.map((st, idx) => {
         const done = currentSection > st.num;
         const active = currentSection === st.num;
         return (
           <React.Fragment key={st.num}>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 shrink-0">
               <div
-                className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[11px] sm:text-xs font-bold transition-all ${
                   done
                     ? 'bg-[#0D9488] text-white'
                     : active
-                    ? 'bg-[#4A90E2] text-white ring-4 ring-blue-100'
+                    ? 'bg-[#4A90E2] text-white ring-2 sm:ring-4 ring-blue-100'
                     : 'bg-slate-200 text-slate-500'
                 }`}
               >
-                {done ? <Check className="w-3.5 h-3.5" /> : st.num}
+                {done ? <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> : st.num}
               </div>
               <span
-                className={`text-xs font-semibold hidden sm:inline ${
+                className={`text-[11px] sm:text-xs font-semibold ${
                   active
                     ? 'text-[#4A90E2]'
                     : done
@@ -139,12 +144,13 @@ function MissionRoadmap({ currentSection, highlight = false }) {
                     : 'text-slate-400'
                 }`}
               >
-                {st.label}
+                <span className="sm:hidden">{st.shortLabel}</span>
+                <span className="hidden sm:inline">{st.label}</span>
               </span>
             </div>
             {idx < stages.length - 1 && (
               <div
-                className={`flex-1 h-1 mx-2 rounded-full transition-colors ${
+                className={`flex-1 h-0.5 sm:h-1 mx-1.5 sm:mx-2 rounded-full transition-colors ${
                   currentSection > st.num ? 'bg-[#0D9488]' : 'bg-slate-200'
                 }`}
               />
@@ -170,12 +176,12 @@ function TimerPill({ seconds, isGamified }) {
   }
   return (
     <div
-      className={`inline-flex items-center gap-1.5 px-3 py-1.5 bg-white font-semibold text-xs sm:text-sm ${
-        isGamified ? 'rounded-full shadow-sm border-2' : 'border'
-      } transition-colors ${pulse}`}
+      className={`inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-white font-bold text-xs sm:text-sm ${
+        isGamified ? 'rounded-full shadow-2xs border-2' : 'border'
+      } transition-colors shrink-0 ${pulse}`}
       style={{ borderColor: border, color: text }}
     >
-      <Clock className="w-4 h-4 shrink-0" />
+      <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
       <span>{formatTime(seconds)}</span>
     </div>
   );
@@ -188,13 +194,13 @@ function DashboardView({ dashboard, isGamified }) {
     <div
       className={
         isGamified
-          ? 'bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200 mb-6'
-          : 'border border-slate-300 p-4 mb-6 bg-white'
+          ? 'bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200 mb-5 sm:mb-6'
+          : 'border border-slate-300 p-3.5 sm:p-4 mb-5 sm:mb-6 bg-white'
       }
     >
       {isGamified && (
         <div className="flex flex-wrap items-center justify-between gap-2 mb-3 pb-2 border-b border-slate-100">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#0D9488] flex items-center gap-1.5">
+          <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#0D9488] flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 shrink-0" />
             Talvexo Live Analytics Terminal
           </span>
@@ -204,19 +210,19 @@ function DashboardView({ dashboard, isGamified }) {
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 mb-4 sm:mb-5">
         {dashboard.kpis.map((kpi, idx) => (
           <div
             key={idx}
             className={
               isGamified
-                ? 'bg-gradient-to-br from-slate-50 to-white border border-slate-200 rounded-xl p-3.5 shadow-2xs'
-                : 'border border-slate-300 p-3 bg-white'
+                ? 'bg-gradient-to-br from-slate-50 to-white border border-slate-200 rounded-xl p-3 sm:p-3.5 shadow-2xs flex sm:block items-center justify-between'
+                : 'border border-slate-300 p-3 bg-white flex sm:block items-center justify-between'
             }
           >
-            <div className="text-xs text-slate-500 font-medium">{kpi.label}</div>
+            <div className="text-xs text-slate-600 font-medium">{kpi.label}</div>
             <div
-              className={`text-lg sm:text-xl font-bold mt-1 ${
+              className={`text-base sm:text-xl font-bold sm:mt-1 ${
                 isGamified ? 'text-[#0D9488]' : 'text-[#2C2C2C]'
               }`}
             >
@@ -226,7 +232,7 @@ function DashboardView({ dashboard, isGamified }) {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
         <div
           className={
             isGamified
@@ -234,7 +240,7 @@ function DashboardView({ dashboard, isGamified }) {
               : 'border border-slate-300 p-3'
           }
         >
-          <div className="text-sm font-semibold mb-3 text-[#2C2C2C]">
+          <div className="text-xs sm:text-sm font-semibold mb-3 text-[#2C2C2C]">
             {dashboard.barTitle}
           </div>
           <div className="space-y-2.5">
@@ -245,7 +251,7 @@ function DashboardView({ dashboard, isGamified }) {
                   <span className="w-14 sm:w-16 font-medium text-slate-700 shrink-0 truncate">
                     {item.name}
                   </span>
-                  <div className="flex-1 bg-slate-200 h-5 rounded-md overflow-hidden min-w-0">
+                  <div className="flex-1 bg-slate-200 h-4 sm:h-5 rounded-md overflow-hidden min-w-0">
                     <div
                       className="h-full transition-all duration-500"
                       style={{
@@ -274,7 +280,7 @@ function DashboardView({ dashboard, isGamified }) {
         >
           {dashboard.type === 'marketing' ? (
             <>
-              <div className="text-sm font-semibold mb-3 text-[#2C2C2C]">
+              <div className="text-xs sm:text-sm font-semibold mb-3 text-[#2C2C2C]">
                 {dashboard.segmentsTitle}
               </div>
               <div className="space-y-2.5">
@@ -299,11 +305,11 @@ function DashboardView({ dashboard, isGamified }) {
             </>
           ) : (
             <>
-              <div className="text-sm font-semibold mb-2 text-[#2C2C2C]">
+              <div className="text-xs sm:text-sm font-semibold mb-2 text-[#2C2C2C]">
                 {dashboard.pnlTitle}
               </div>
               <div className="overflow-x-auto -mx-1 px-1">
-                <table className="w-full min-w-[290px] text-xs text-left">
+                <table className="w-full min-w-[270px] text-xs text-left">
                   <thead>
                     <tr className="border-b border-slate-300 text-slate-500">
                       <th className="py-1.5 pr-2">Metric</th>
@@ -396,8 +402,6 @@ function CandidateAssessment() {
   const [questionTimings, setQuestionTimings] = useState({});
   const questionStartRef = useRef(Date.now());
 
-  const [tourStep, setTourStep] = useState(0);
-
   const [tokensLeft, setTokensLeft] = useState(INITIAL_INTEL_TOKENS);
   const [unlockedClues, setUnlockedClues] = useState({});
 
@@ -415,6 +419,7 @@ function CandidateAssessment() {
   const [submitError, setSubmitError] = useState('');
 
   const warnedRef = useRef(false);
+  const advancingRef = useRef(false);
 
   const activeStream = form.stream || 'Marketing';
   const roleTitle =
@@ -477,11 +482,22 @@ function CandidateAssessment() {
   useEffect(() => {
     if (step === 'assessment') {
       questionStartRef.current = Date.now();
+      advancingRef.current = false;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [step, section, qIndex]);
 
+  // Reliable effect-based auto-advance after Gamified option feedback modal
   useEffect(() => {
-    if (!isGamified || step !== 'assessment' || popup || tourStep > 0) return;
+    if (!popup) return;
+    const timeout = setTimeout(() => {
+      proceedAfterPopup();
+    }, 2200);
+    return () => clearTimeout(timeout);
+  }, [popup]);
+
+  useEffect(() => {
+    if (!isGamified || step !== 'assessment' || popup) return;
     function onKeyDown(e) {
       const key = e.key.toUpperCase();
       if (key === 'A' || key === 'B' || key === 'C') {
@@ -494,7 +510,7 @@ function CandidateAssessment() {
     }
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [step, popup, tourStep, currentQuestions, qIndex, isGamified]);
+  }, [step, popup, currentQuestions, qIndex, isGamified]);
 
   useEffect(() => {
     if (isPreview) return;
@@ -557,12 +573,12 @@ function CandidateAssessment() {
   ]);
 
   useEffect(() => {
-    if (step !== 'assessment' || popup || tourStep > 0) return;
+    if (step !== 'assessment' || popup) return;
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev === 31 && isGamified && !warnedRef.current) {
           warnedRef.current = true;
-          soundEngine.playWarning();
+          safePlaySound('playWarning');
         }
         if (prev <= 1) {
           clearInterval(timer);
@@ -573,7 +589,7 @@ function CandidateAssessment() {
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [step, section, popup, tourStep, isGamified]);
+  }, [step, section, popup, isGamified]);
 
   useEffect(() => {
     if (step !== 'buffer') return;
@@ -603,12 +619,14 @@ function CandidateAssessment() {
   function toggleMute() {
     const next = !muted;
     setMuted(next);
-    soundEngine.muted = next;
+    if (soundEngine) {
+      soundEngine.muted = next;
+    }
   }
 
   function handleUnlockClue(questionId) {
     if (tokensLeft <= 0 || unlockedClues[questionId]) return;
-    soundEngine.playClick();
+    safePlaySound('playClick');
     setTokensLeft((t) => t - 1);
     setUnlockedClues((prev) => ({ ...prev, [questionId]: true }));
   }
@@ -616,7 +634,7 @@ function CandidateAssessment() {
   function handlePreviewJump(target) {
     setPopup(null);
     setTradError('');
-    setTourStep(0);
+    advancingRef.current = false;
     if (target === 'sec1') {
       setSection(1);
       setQIndex(0);
@@ -717,9 +735,10 @@ function CandidateAssessment() {
     setQuestionTimings({});
     setTokensLeft(INITIAL_INTEL_TOKENS);
     setUnlockedClues({});
+    advancingRef.current = false;
 
     if (assigned === 'Gamified') {
-      soundEngine.playClick();
+      safePlaySound('playClick');
       setStep('welcome');
     } else {
       setStep('trad_welcome');
@@ -732,16 +751,17 @@ function CandidateAssessment() {
     setPopup(null);
     setTradError('');
     warnedRef.current = false;
+    advancingRef.current = false;
 
     if (isGamified) {
-      soundEngine.playBadge();
+      safePlaySound('playBadge');
       setBadgeTransitionSec(section);
       setStep('badge_transition');
       if (!isPreview) {
         setTimeout(() => {
           setBadgeTransitionSec(null);
           advanceAfterSection(section);
-        }, 3500);
+        }, 3200);
       }
     } else {
       advanceAfterSection(section);
@@ -761,9 +781,22 @@ function CandidateAssessment() {
     }
   }
 
+  function proceedAfterPopup() {
+    if (advancingRef.current) return;
+    advancingRef.current = true;
+    setPopup(null);
+    if (qIndex + 1 < currentQuestions.length) {
+      setQIndex((prev) => prev + 1);
+    } else {
+      handleSectionComplete(false);
+    }
+  }
+
   function handleGamifiedAnswer(opt) {
-    if (popup || tourStep > 0) return;
+    if (popup || advancingRef.current) return;
     const q = currentQuestions[qIndex];
+    if (!q) return;
+
     recordQuestionDuration(q.id);
 
     const updated = {
@@ -783,29 +816,24 @@ function CandidateAssessment() {
         : CHARACTERS.rohanMarketing;
 
     let message = '';
+    let tone = 'good';
     if (opt.marks === 4 || (section < 3 && opt.marks === 2)) {
-      soundEngine.playSuccess();
+      safePlaySound('playSuccess');
       message = 'Spot on! Solid business reasoning.';
+      tone = 'good';
     } else if (section === 3 && opt.marks === 2) {
-      soundEngine.playNeutral();
+      safePlaySound('playNeutral');
       message =
         'A cautious call—compliant, though there may be a stronger commercial balance.';
+      tone = 'mid';
     } else {
-      soundEngine.playNeutral();
+      safePlaySound('playNeutral');
       message =
         'Oops, not quite! Think carefully about the numbers and company policy—better luck on the next one!';
+      tone = 'low';
     }
 
-    setPopup({ speaker, message });
-
-    setTimeout(() => {
-      setPopup(null);
-      if (qIndex + 1 < currentQuestions.length) {
-        setQIndex(qIndex + 1);
-      } else {
-        handleSectionComplete(false);
-      }
-    }, 2000);
+    setPopup({ speaker, message, tone });
   }
 
   function handleTraditionalSectionSubmit(e) {
@@ -948,7 +976,7 @@ function CandidateAssessment() {
 
     setSubmitting(false);
     if (isGamified) {
-      soundEngine.playBadge();
+      safePlaySound('playBadge');
       setStep('results');
     } else {
       setStep('debrief');
@@ -957,7 +985,7 @@ function CandidateAssessment() {
 
   return (
     <div
-      className={`min-h-screen font-sans ${
+      className={`min-h-screen overflow-x-hidden font-sans ${
         isGamified &&
         step !== 'landing' &&
         step !== 'consent' &&
@@ -967,7 +995,7 @@ function CandidateAssessment() {
       } text-[#2C2C2C]`}
     >
       {isPreview && (
-        <div className="bg-slate-900 text-white text-xs px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 border-b border-amber-500">
+        <div className="bg-slate-900 text-white text-xs px-3 sm:px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 border-b border-amber-500">
           <div className="flex items-center gap-2">
             <span className="px-2 py-0.5 rounded bg-amber-500 text-slate-950 font-bold">
               PREVIEW SANDBOX
@@ -1046,6 +1074,7 @@ function CandidateAssessment() {
                 value={qIndex}
                 onChange={(e) => {
                   setPopup(null);
+                  advancingRef.current = false;
                   setQIndex(Number(e.target.value));
                 }}
                 className="bg-slate-800 border border-slate-600 rounded px-2.5 py-1 font-semibold text-amber-300"
@@ -1087,21 +1116,21 @@ function CandidateAssessment() {
         step === 'assessment' ||
         (isGamified && step === 'badge_transition')) && (
         <header
-          className={`sticky top-0 z-30 px-3 sm:px-4 py-3 border-b ${
+          className={`sticky top-0 z-30 px-3 sm:px-4 py-2.5 sm:py-3 border-b ${
             isGamified
               ? 'bg-white/95 backdrop-blur border-slate-200 shadow-xs'
               : 'bg-white border-slate-300'
           }`}
         >
-          <div className="max-w-4xl mx-auto flex flex-wrap items-center justify-between gap-2.5">
-            <div className="flex items-center gap-2.5 min-w-0">
+          <div className="max-w-4xl mx-auto flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0">
               {isGamified && (
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#4A90E2] to-[#0D9488] text-white font-bold text-sm flex items-center justify-center shadow-2xs shrink-0">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-[#4A90E2] to-[#0D9488] text-white font-bold text-xs sm:text-sm flex items-center justify-center shadow-2xs shrink-0">
                   T
                 </div>
               )}
-              <div className="truncate">
-                <div className="text-xs text-slate-500 font-medium truncate">
+              <div className="min-w-0">
+                <div className="text-[11px] sm:text-xs text-slate-500 font-medium truncate">
                   {form.full_name}
                 </div>
                 <div className="text-xs sm:text-sm font-bold text-[#2C2C2C] truncate">
@@ -1111,21 +1140,20 @@ function CandidateAssessment() {
             </div>
 
             {step === 'assessment' && (
-              <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
                 {isGamified && (
                   <div
                     title="Limited resource: spend 1 token on any question to reveal an analyst clue"
-                    className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs sm:text-sm font-bold border-2 transition ${
-                      tourStep === 1
-                        ? 'ring-4 ring-amber-300 scale-105 bg-amber-100 border-amber-500 text-amber-950'
-                        : tokensLeft > 0
+                    className={`inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-bold border-2 transition ${
+                      tokensLeft > 0
                         ? 'bg-amber-50 border-amber-400 text-amber-900'
                         : 'bg-slate-100 border-slate-300 text-slate-500'
                     }`}
                   >
-                    <Coins className="w-4 h-4 text-amber-500 shrink-0" />
+                    <Coins className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500 shrink-0" />
                     <span>
-                      Tokens: {tokensLeft}/{INITIAL_INTEL_TOKENS}
+                      <span className="hidden xs:inline">Tokens: </span>
+                      {tokensLeft}/{INITIAL_INTEL_TOKENS}
                     </span>
                   </div>
                 )}
@@ -1134,12 +1162,12 @@ function CandidateAssessment() {
                   <button
                     onClick={toggleMute}
                     title={muted ? 'Unmute sound' : 'Mute sound'}
-                    className="p-2 rounded-full border border-slate-200 text-slate-600 hover:bg-slate-100 shrink-0"
+                    className="p-1.5 sm:p-2 rounded-full border border-slate-200 text-slate-600 hover:bg-slate-100 shrink-0"
                   >
                     {muted ? (
-                      <VolumeX className="w-4 h-4" />
+                      <VolumeX className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     ) : (
-                      <Volume2 className="w-4 h-4" />
+                      <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     )}
                   </button>
                 )}
@@ -1152,12 +1180,9 @@ function CandidateAssessment() {
           {step === 'assessment' && (
             <div className="max-w-4xl mx-auto">
               {isGamified ? (
-                <MissionRoadmap
-                  currentSection={section}
-                  highlight={tourStep === 2}
-                />
+                <MissionRoadmap currentSection={section} />
               ) : (
-                <div className="text-xs font-medium text-slate-600 mt-2">
+                <div className="text-xs font-medium text-slate-600 mt-1.5">
                   Section {section} of 3 — {bank.sectionTitles[section]}
                 </div>
               )}
@@ -1166,70 +1191,48 @@ function CandidateAssessment() {
         </header>
       )}
 
-      {isGamified && step === 'assessment' && tourStep > 0 && (
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-4">
-          <div className="bg-slate-900 text-white rounded-2xl p-4 shadow-xl border border-teal-400 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div className="flex items-start gap-3">
-              <HelpCircle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
-              <div className="text-xs sm:text-sm leading-relaxed">
-                {tourStep === 1 ? (
-                  <>
-                    <span className="font-bold text-amber-300">
-                      Quick Tip (1/2) — Intel Tokens:{' '}
-                    </span>
-                    You have <strong>4 Intel Tokens</strong> for the entire
-                    simulation. Spend 1 token on any tough question to reveal an
-                    analyst clue!
-                  </>
-                ) : (
-                  <>
-                    <span className="font-bold text-teal-300">
-                      Quick Tip (2/2) — Mission Roadmap:{' '}
-                    </span>
-                    Track your progress across all 3 business rounds above.
-                    Watch the timer pill—each round has its own clock!
-                  </>
-                )}
+      {/* MOBILE-FRIENDLY CENTERED CHARACTER FEEDBACK MODAL */}
+      {isGamified && popup && (
+        <div
+          onClick={proceedAfterPopup}
+          className="fixed inset-0 z-50 bg-slate-900/45 backdrop-blur-[2px] flex items-center justify-center p-4"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white border-2 border-[#0D9488] rounded-2xl p-5 sm:p-6 shadow-2xl w-full max-w-md space-y-4"
+          >
+            <div className="flex items-center gap-3.5">
+              <CharacterAvatar char={popup.speaker} size="md" />
+              <div className="min-w-0">
+                <div className="text-xs font-bold uppercase tracking-wide text-[#0D9488]">
+                  {popup.speaker.name}
+                </div>
+                <div className="text-xs text-slate-500 font-medium">
+                  {popup.speaker.role}
+                </div>
               </div>
             </div>
+
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-medium text-[#2C2C2C] leading-relaxed">
+              “{popup.message}”
+            </div>
+
             <button
               type="button"
-              onClick={() => {
-                soundEngine.playClick();
-                if (tourStep === 1) {
-                  setTourStep(2);
-                } else {
-                  setTourStep(0);
-                  questionStartRef.current = Date.now();
-                }
-              }}
-              className="px-4 py-2 rounded-lg bg-[#0D9488] hover:bg-teal-500 text-white text-xs font-bold shrink-0 self-end sm:self-center"
+              onClick={proceedAfterPopup}
+              className="w-full py-3 rounded-xl bg-[#0D9488] hover:bg-teal-700 active:scale-[0.99] text-white text-sm font-bold shadow-sm transition"
             >
-              {tourStep === 1 ? 'Next Tip →' : 'Got It, Start!'}
+              {qIndex + 1 < currentQuestions.length
+                ? 'Next Decision →'
+                : 'Complete Challenge →'}
             </button>
-          </div>
-        </div>
-      )}
-
-      {isGamified && popup && (
-        <div className="fixed top-24 left-1/2 z-50 w-[92%] max-w-md animate-pop-in">
-          <div className="bg-white border-2 border-[#0D9488] rounded-2xl p-4 shadow-2xl flex items-center gap-4">
-            <CharacterAvatar char={popup.speaker} size="sm" />
-            <div>
-              <div className="text-xs font-bold text-[#0D9488]">
-                {popup.speaker.name} • {popup.speaker.role}
-              </div>
-              <div className="text-sm font-medium text-[#2C2C2C] mt-0.5">
-                {popup.message}
-              </div>
-            </div>
           </div>
         </div>
       )}
 
       {/* 1. LANDING PAGE */}
       {step === 'landing' && (
-        <main className="max-w-xl mx-auto px-5 py-16 text-center">
+        <main className="max-w-xl mx-auto px-4 sm:px-5 py-12 sm:py-16 text-center">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#4A90E2] text-white font-bold text-2xl mb-4 shadow-sm">
             T
           </div>
@@ -1261,8 +1264,8 @@ function CandidateAssessment() {
 
       {/* 2. CONSENT SCREEN */}
       {step === 'consent' && (
-        <main className="max-w-xl mx-auto px-5 py-14">
-          <div className="border border-slate-200 rounded-xl p-6 sm:p-8 bg-white shadow-xs">
+        <main className="max-w-xl mx-auto px-4 sm:px-5 py-10 sm:py-14">
+          <div className="border border-slate-200 rounded-xl p-5 sm:p-8 bg-white shadow-xs">
             <h2 className="text-xl font-bold mb-3">Research Consent</h2>
             <p className="text-sm text-slate-600 leading-relaxed">
               This assessment is part of an academic research study on campus
@@ -1279,7 +1282,7 @@ function CandidateAssessment() {
                 type="checkbox"
                 checked={consentChecked}
                 onChange={(e) => setConsentChecked(e.target.checked)}
-                className="mt-1 w-4 h-4 accent-[#4A90E2]"
+                className="mt-1 w-4 h-4 accent-[#4A90E2] shrink-0"
               />
               <span className="text-sm font-medium text-[#2C2C2C]">
                 I consent to my responses being used for academic research
@@ -1290,7 +1293,7 @@ function CandidateAssessment() {
             <button
               disabled={!consentChecked}
               onClick={() => setStep('register')}
-              className="mt-6 w-full py-3 rounded-lg bg-[#4A90E2] text-white font-semibold text-sm disabled:opacity-40 hover:bg-blue-600 transition"
+              className="mt-6 w-full py-3.5 rounded-lg bg-[#4A90E2] text-white font-semibold text-sm disabled:opacity-40 hover:bg-blue-600 transition"
             >
               Begin Registration
             </button>
@@ -1298,16 +1301,16 @@ function CandidateAssessment() {
         </main>
       )}
 
-      {/* 3. REGISTRATION SCREEN (Zero Pre-Filled Data) */}
+      {/* 3. REGISTRATION SCREEN */}
       {step === 'register' && (
-        <main className="max-w-xl mx-auto px-5 py-10">
+        <main className="max-w-xl mx-auto px-4 sm:px-5 py-8 sm:py-10">
           {resumeOffer && (
             <div className="mb-6 p-4 rounded-xl bg-blue-50 border border-blue-200">
               <div className="text-sm font-semibold text-blue-900">
                 Welcome back! You have an incomplete assessment saved in this
                 browser.
               </div>
-              <div className="flex gap-3 mt-3">
+              <div className="flex flex-wrap gap-2.5 mt-3">
                 <button
                   onClick={handleResumeSaved}
                   className="px-4 py-2 rounded-lg bg-[#4A90E2] text-white text-xs font-semibold"
@@ -1327,7 +1330,7 @@ function CandidateAssessment() {
           <form
             onSubmit={handleRegisterSubmit}
             autoComplete="off"
-            className="border border-slate-200 rounded-xl p-6 sm:p-8 bg-white shadow-xs space-y-4"
+            className="border border-slate-200 rounded-xl p-5 sm:p-8 bg-white shadow-xs space-y-4"
           >
             <h2 className="text-xl font-bold">Candidate Registration</h2>
 
@@ -1349,7 +1352,7 @@ function CandidateAssessment() {
                 onChange={(e) =>
                   setForm({ ...form, full_name: e.target.value })
                 }
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
+                className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base sm:text-sm"
                 placeholder="Enter your full name"
               />
             </div>
@@ -1366,7 +1369,7 @@ function CandidateAssessment() {
                 onChange={(e) =>
                   setForm({ ...form, college_name: e.target.value })
                 }
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
+                className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base sm:text-sm"
                 placeholder="Enter your B-school / college name"
               />
             </div>
@@ -1381,7 +1384,7 @@ function CandidateAssessment() {
                 autoComplete="new-password"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
+                className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base sm:text-sm"
                 placeholder="Enter your email address"
               />
             </div>
@@ -1394,7 +1397,7 @@ function CandidateAssessment() {
                 <select
                   value={form.gender}
                   onChange={(e) => setForm({ ...form, gender: e.target.value })}
-                  className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base sm:text-sm bg-white"
                 >
                   <option value="">Select</option>
                   <option value="Male">Male</option>
@@ -1412,7 +1415,7 @@ function CandidateAssessment() {
                   autoComplete="off"
                   value={form.age}
                   onChange={(e) => setForm({ ...form, age: e.target.value })}
-                  className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base sm:text-sm"
                   placeholder="Enter your age"
                 />
               </div>
@@ -1428,7 +1431,7 @@ function CandidateAssessment() {
                 onChange={(e) =>
                   setForm({ ...form, gaming_frequency: e.target.value })
                 }
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white"
+                className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base sm:text-sm bg-white"
               >
                 <option value="">Select</option>
                 <option value="Never">Never</option>
@@ -1452,7 +1455,7 @@ function CandidateAssessment() {
                 onChange={(e) =>
                   setForm({ ...form, gaming_type: e.target.value })
                 }
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white"
+                className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base sm:text-sm bg-white"
               >
                 <option value="">Select</option>
                 <option value="I do not play games">I do not play games</option>
@@ -1481,7 +1484,7 @@ function CandidateAssessment() {
                     prior_gamified_experience: e.target.value,
                   })
                 }
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white"
+                className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base sm:text-sm bg-white"
               >
                 <option value="">Select</option>
                 <option value="Yes">Yes</option>
@@ -1496,7 +1499,7 @@ function CandidateAssessment() {
               <select
                 value={form.stream}
                 onChange={(e) => setForm({ ...form, stream: e.target.value })}
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white"
+                className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base sm:text-sm bg-white"
               >
                 <option value="" disabled>
                   Please choose your specialisation
@@ -1507,7 +1510,7 @@ function CandidateAssessment() {
             </div>
 
             {form.stream && (
-              <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between">
+              <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between gap-2">
                 <span className="text-xs font-medium text-slate-600">
                   Assigned Assessment Role:
                 </span>
@@ -1519,7 +1522,7 @@ function CandidateAssessment() {
 
             <button
               type="submit"
-              className="w-full py-3 rounded-lg bg-[#4A90E2] hover:bg-blue-600 text-white font-semibold text-sm transition"
+              className="w-full py-3.5 rounded-lg bg-[#4A90E2] hover:bg-blue-600 text-white font-semibold text-sm transition"
             >
               Submit Registration & Start
             </button>
@@ -1529,8 +1532,8 @@ function CandidateAssessment() {
 
       {/* A. TRADITIONAL WELCOME SCREEN */}
       {!isGamified && step === 'trad_welcome' && (
-        <main className="max-w-2xl mx-auto px-5 py-12">
-          <div className="bg-white border border-slate-300 p-6 sm:p-8 space-y-4">
+        <main className="max-w-2xl mx-auto px-4 sm:px-5 py-10 sm:py-12">
+          <div className="bg-white border border-slate-300 p-5 sm:p-8 space-y-4">
             <h2 className="text-xl font-bold text-[#2C2C2C]">
               Assessment Overview
             </h2>
@@ -1566,7 +1569,7 @@ function CandidateAssessment() {
                   questionStartRef.current = Date.now();
                   setStep('assessment');
                 }}
-                className="px-6 py-2.5 bg-[#2C2C2C] hover:bg-slate-800 text-white text-sm font-semibold"
+                className="w-full sm:w-auto px-6 py-3 bg-[#2C2C2C] hover:bg-slate-800 text-white text-sm font-semibold"
               >
                 Start Assessment
               </button>
@@ -1577,21 +1580,21 @@ function CandidateAssessment() {
 
       {/* B. GAMIFIED WELCOME SCREEN */}
       {isGamified && step === 'welcome' && (
-        <main className="max-w-2xl mx-auto px-5 py-12">
-          <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-md border border-slate-200">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+        <main className="max-w-2xl mx-auto px-4 sm:px-5 py-8 sm:py-12">
+          <div className="bg-white rounded-2xl p-5 sm:p-8 shadow-md border border-slate-200">
+            <div className="flex items-center gap-3.5 sm:gap-4">
               <CharacterAvatar char={CHARACTERS.priya} size="lg" />
-              <div>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-teal-50 text-[#0D9488] text-xs font-bold uppercase tracking-wide">
+              <div className="min-w-0">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-teal-50 text-[#0D9488] text-[11px] sm:text-xs font-bold uppercase tracking-wide">
                   {CHARACTERS.priya.name} • {CHARACTERS.priya.role}
                 </div>
-                <h2 className="text-xl sm:text-2xl font-bold mt-1">
+                <h2 className="text-lg sm:text-2xl font-bold mt-1 leading-snug">
                   Welcome to Your {roleTitle} Simulation
                 </h2>
               </div>
             </div>
 
-            <div className="mt-5 p-4 rounded-xl bg-gradient-to-r from-teal-50 to-blue-50 border border-teal-100 text-sm text-[#2C2C2C] leading-relaxed">
+            <div className="mt-4 sm:mt-5 p-4 rounded-xl bg-gradient-to-r from-teal-50 to-blue-50 border border-teal-100 text-sm text-[#2C2C2C] leading-relaxed">
               “
               {activeStream === 'Finance'
                 ? CHARACTERS.priya.welcomeFinance
@@ -1599,9 +1602,9 @@ function CandidateAssessment() {
               ”
             </div>
 
-            <div className="mt-4 p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-3">
+            <div className="mt-4 p-3.5 sm:p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-3">
               <Coins className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-              <div className="text-xs text-amber-950 leading-relaxed">
+              <div className="text-xs sm:text-sm text-amber-950 leading-relaxed">
                 <span className="font-bold">
                   Limited Resource Rule (4 Intel Tokens):
                 </span>{' '}
@@ -1614,7 +1617,7 @@ function CandidateAssessment() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 mt-5 text-xs">
               <div className="p-3.5 rounded-xl bg-blue-50/60 border border-blue-200">
                 <div className="font-bold text-[#4A90E2]">Challenge 1 • 8m</div>
                 <div className="text-slate-700 font-medium mt-1">
@@ -1637,8 +1640,8 @@ function CandidateAssessment() {
 
             <button
               onClick={() => {
-                soundEngine.playClick();
-                setTourStep(1);
+                safePlaySound('playClick');
+                questionStartRef.current = Date.now();
                 setStep('assessment');
               }}
               className="mt-6 w-full py-3.5 rounded-xl bg-gradient-to-r from-[#4A90E2] to-[#0D9488] hover:opacity-95 text-white font-semibold text-sm shadow-md transition"
@@ -1651,28 +1654,47 @@ function CandidateAssessment() {
 
       {/* B. GAMIFIED ASSESSMENT SCREEN */}
       {step === 'assessment' && isGamified && (
-        <main className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        <main className="max-w-4xl mx-auto px-3.5 sm:px-6 py-4 sm:py-8">
           {qIndex === 0 && (
-            <div className="bg-white rounded-2xl p-4 mb-6 border border-slate-200 shadow-xs flex items-center gap-4">
-              <CharacterAvatar
-                char={
-                  section === 3
-                    ? CHARACTERS.ananya
-                    : activeStream === 'Finance'
-                    ? CHARACTERS.rohanFinance
-                    : CHARACTERS.rohanMarketing
-                }
-                size="sm"
-              />
-              <div>
-                <div className="text-xs font-bold text-[#4A90E2]">
+            <div className="bg-white rounded-2xl p-4 sm:p-5 mb-4 sm:mb-6 border border-slate-200 shadow-xs flex flex-col sm:flex-row items-start sm:items-center gap-3.5 sm:gap-4">
+              <div className="flex items-center gap-3">
+                <CharacterAvatar
+                  char={
+                    section === 3
+                      ? CHARACTERS.ananya
+                      : activeStream === 'Finance'
+                      ? CHARACTERS.rohanFinance
+                      : CHARACTERS.rohanMarketing
+                  }
+                  size="sm"
+                />
+                <div className="sm:hidden">
+                  <div className="text-xs font-bold text-[#4A90E2]">
+                    {section === 3
+                      ? CHARACTERS.ananya.name
+                      : activeStream === 'Finance'
+                      ? CHARACTERS.rohanFinance.name
+                      : CHARACTERS.rohanMarketing.name}
+                  </div>
+                  <div className="text-[11px] text-slate-500 font-medium">
+                    {section === 3
+                      ? CHARACTERS.ananya.role
+                      : activeStream === 'Finance'
+                      ? CHARACTERS.rohanFinance.role
+                      : CHARACTERS.rohanMarketing.role}
+                  </div>
+                </div>
+              </div>
+
+              <div className="min-w-0">
+                <div className="hidden sm:block text-xs font-bold text-[#4A90E2]">
                   {section === 3
                     ? `${CHARACTERS.ananya.name} • ${CHARACTERS.ananya.role}`
                     : activeStream === 'Finance'
                     ? `${CHARACTERS.rohanFinance.name} • ${CHARACTERS.rohanFinance.role}`
                     : `${CHARACTERS.rohanMarketing.name} • ${CHARACTERS.rohanMarketing.role}`}
                 </div>
-                <div className="text-xs sm:text-sm text-slate-700 mt-0.5 leading-relaxed">
+                <div className="text-xs sm:text-sm text-slate-700 sm:mt-0.5 leading-relaxed">
                   “
                   {section === 3
                     ? CHARACTERS.ananya.intro
@@ -1690,13 +1712,13 @@ function CandidateAssessment() {
           )}
 
           {currentQuestions[qIndex] && (
-            <div className="bg-white rounded-2xl p-5 sm:p-8 shadow-md border border-slate-200">
+            <div className="bg-white rounded-2xl p-4 sm:p-8 shadow-md border border-slate-200">
               {section === 3 && (
                 <div className="mb-4 p-3 rounded-xl bg-amber-50 border border-amber-200 flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2 text-xs font-bold text-amber-900">
                     <MailWarning className="w-4 h-4 text-amber-600 shrink-0" />
                     <span>
-                      TALVEXO PRIORITY MEMO • {currentQuestions[qIndex].tag}
+                      PRIORITY MEMO • {currentQuestions[qIndex].tag}
                     </span>
                   </div>
                   <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-amber-200/70 text-amber-900 shrink-0">
@@ -1709,7 +1731,7 @@ function CandidateAssessment() {
                 <span className="font-semibold uppercase tracking-wide">
                   {bank.sectionTitles[section]}
                 </span>
-                <span className="font-semibold">
+                <span className="font-bold text-slate-700">
                   Decision {qIndex + 1} of {currentQuestions.length}
                 </span>
               </div>
@@ -1721,11 +1743,11 @@ function CandidateAssessment() {
               )}
 
               {section === 1 && currentQuestions[qIndex].briefStats && (
-                <div className="flex flex-wrap gap-2 mb-3.5">
+                <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3.5">
                   {currentQuestions[qIndex].briefStats.map((stat, sIdx) => (
                     <span
                       key={sIdx}
-                      className="px-2.5 py-1 rounded-md bg-blue-50 border border-blue-200 text-xs font-bold text-[#1E3A8A]"
+                      className="px-2.5 py-1 rounded-md bg-blue-50 border border-blue-200 text-[11px] sm:text-xs font-bold text-[#1E3A8A]"
                     >
                       {stat}
                     </span>
@@ -1739,7 +1761,7 @@ function CandidateAssessment() {
 
               <div className="mt-4">
                 {unlockedClues[currentQuestions[qIndex].id] ? (
-                  <div className="p-3.5 rounded-xl bg-amber-50/90 border border-amber-300 flex items-start gap-2.5 text-xs sm:text-sm text-amber-950">
+                  <div className="p-3.5 rounded-xl bg-amber-50/90 border border-amber-300 flex items-start gap-2.5 text-xs sm:text-sm text-amber-950 leading-relaxed">
                     <Lightbulb className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                     <div>
                       <span className="font-bold">Unlocked Analyst Clue: </span>
@@ -1749,11 +1771,9 @@ function CandidateAssessment() {
                 ) : (
                   <button
                     type="button"
-                    disabled={
-                      tokensLeft <= 0 || Boolean(popup) || tourStep > 0
-                    }
+                    disabled={tokensLeft <= 0 || Boolean(popup)}
                     onClick={() => handleUnlockClue(currentQuestions[qIndex].id)}
-                    className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold border transition ${
+                    className={`w-full sm:w-auto inline-flex items-center justify-center sm:justify-start gap-2 px-3.5 py-2.5 sm:py-2 rounded-lg text-xs font-semibold border transition ${
                       tokensLeft > 0
                         ? 'bg-amber-50 hover:bg-amber-100 border-amber-300 text-amber-900'
                         : 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed'
@@ -1777,9 +1797,9 @@ function CandidateAssessment() {
                     <button
                       key={opt.id}
                       type="button"
-                      disabled={Boolean(popup) || tourStep > 0}
+                      disabled={Boolean(popup)}
                       onClick={() => handleGamifiedAnswer(opt)}
-                      className={`w-full text-left p-3.5 sm:p-4 transition-all flex items-start gap-3 sm:gap-3.5 rounded-xl border-2 hover:-translate-y-0.5 hover:shadow-sm ${
+                      className={`w-full min-h-[54px] text-left p-3.5 sm:p-4 transition-all flex items-start gap-3 sm:gap-3.5 rounded-xl border-2 active:scale-[0.99] cursor-pointer ${
                         isPicked
                           ? 'border-[#0D9488] bg-teal-50/70 ring-2 ring-teal-200'
                           : 'border-slate-200 hover:border-[#4A90E2] hover:bg-blue-50/30'
@@ -1812,30 +1832,30 @@ function CandidateAssessment() {
 
       {/* A. TRADITIONAL ASSESSMENT SCREEN */}
       {step === 'assessment' && !isGamified && (
-        <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
+        <main className="max-w-3xl mx-auto px-3.5 sm:px-6 py-6 sm:py-8">
           {section === 2 && (
             <DashboardView dashboard={bank.dashboard} isGamified={false} />
           )}
 
-          <form onSubmit={handleTraditionalSectionSubmit} className="space-y-5">
+          <form onSubmit={handleTraditionalSectionSubmit} className="space-y-4 sm:space-y-5">
             {currentQuestions.map((q, idx) => {
               const selectedOptId = answers[section]?.[q.id]?.selected || '';
               return (
                 <div
                   key={q.id}
-                  className="bg-white border border-slate-300 rounded-md p-5 sm:p-6"
+                  className="bg-white border border-slate-300 rounded-md p-4 sm:p-6"
                 >
                   <div className="text-sm font-semibold text-[#2C2C2C] leading-relaxed">
                     {idx + 1}. {q.question} *
                   </div>
 
-                  <div className="mt-4 space-y-2.5">
+                  <div className="mt-3.5 sm:mt-4 space-y-2.5">
                     {q.options.map((opt) => {
                       const checked = selectedOptId === opt.id;
                       return (
                         <label
                           key={opt.id}
-                          className={`flex items-start gap-3 p-3 rounded border cursor-pointer text-sm ${
+                          className={`flex items-start gap-3 p-3.5 rounded border cursor-pointer text-sm ${
                             checked
                               ? 'border-slate-800 bg-slate-100 font-medium'
                               : 'border-slate-200 hover:bg-slate-50'
@@ -1859,7 +1879,7 @@ function CandidateAssessment() {
                                 },
                               }));
                             }}
-                            className="mt-1 accent-[#2C2C2C]"
+                            className="mt-1 accent-[#2C2C2C] shrink-0"
                           />
                           <span className="leading-relaxed">
                             <strong className="mr-1.5">{opt.id}.</strong>
@@ -1882,7 +1902,7 @@ function CandidateAssessment() {
             <div className="flex justify-end pt-2">
               <button
                 type="submit"
-                className="px-7 py-3 rounded bg-[#2C2C2C] hover:bg-slate-800 text-white text-sm font-semibold transition"
+                className="w-full sm:w-auto px-7 py-3.5 sm:py-3 rounded bg-[#2C2C2C] hover:bg-slate-800 text-white text-sm font-semibold transition"
               >
                 {section < 3 ? 'Next Section' : 'Submit Assessment'}
               </button>
@@ -1893,43 +1913,40 @@ function CandidateAssessment() {
 
       {/* B. GAMIFIED SECTION COMPLETION BADGE TRANSITION */}
       {isGamified && step === 'badge_transition' && badgeTransitionSec && (
-        <main className="min-h-[75vh] flex items-center justify-center px-5 bg-[#FFD93D]/20 relative">
+        <main className="min-h-[75vh] flex items-center justify-center px-4 sm:px-5 bg-[#FFD93D]/20 relative">
           <CssConfetti count={20} />
-          <div className="max-w-md w-full bg-white rounded-2xl p-8 text-center shadow-xl border-2 border-[#FFD93D] animate-badge relative z-10">
+          <div className="max-w-md w-full bg-white rounded-2xl p-6 sm:p-8 text-center shadow-xl border-2 border-[#FFD93D] animate-badge relative z-10">
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#FFD93D] to-[#F59E0B] text-white flex items-center justify-center mx-auto mb-4 shadow-md">
               <Award className="w-8 h-8" />
             </div>
             <div className="text-xs font-bold uppercase tracking-wider text-[#0D9488]">
               Challenge {badgeTransitionSec} Cleared
             </div>
-            <h2 className="text-2xl font-bold mt-1">
+            <h2 className="text-xl sm:text-2xl font-bold mt-1">
               {bank.sectionBadges[badgeTransitionSec].title}
             </h2>
             <p className="text-sm text-slate-600 mt-2">
               {bank.sectionBadges[badgeTransitionSec].desc}
             </p>
-            {isPreview ? (
-              <button
-                onClick={() => {
-                  setBadgeTransitionSec(null);
-                  advanceAfterSection(badgeTransitionSec);
-                }}
-                className="mt-5 px-5 py-2 rounded-lg bg-[#4A90E2] text-white text-xs font-semibold"
-              >
-                Continue to Next Stage (Preview)
-              </button>
-            ) : (
-              <div className="text-xs text-slate-400 mt-5">
-                Advancing to next stage...
-              </div>
-            )}
+            <button
+              type="button"
+              onClick={() => {
+                setBadgeTransitionSec(null);
+                advanceAfterSection(badgeTransitionSec);
+              }}
+              className="mt-5 w-full sm:w-auto px-6 py-3 rounded-lg bg-[#4A90E2] hover:bg-blue-600 text-white text-xs sm:text-sm font-semibold"
+            >
+              {isPreview
+                ? 'Continue to Next Stage (Preview)'
+                : 'Continue Now →'}
+            </button>
           </div>
         </main>
       )}
 
       {/* 7. 10-SECOND REFLECTION BUFFER */}
       {step === 'buffer' && (
-        <main className="max-w-lg mx-auto px-5 py-20 text-center">
+        <main className="max-w-lg mx-auto px-4 sm:px-5 py-16 sm:py-20 text-center">
           <p className="text-base sm:text-lg font-medium text-[#2C2C2C] mb-6">
             Before you share your feedback, take a moment to reflect on your
             experience.
@@ -1943,7 +1960,7 @@ function CandidateAssessment() {
             <button
               disabled={bufferLeft > 0 && !isPreview}
               onClick={() => setStep('survey')}
-              className="px-8 py-3 rounded-lg bg-[#4A90E2] text-white font-semibold text-sm disabled:opacity-40 hover:bg-blue-600 transition"
+              className="w-full sm:w-auto px-8 py-3.5 rounded-lg bg-[#4A90E2] text-white font-semibold text-sm disabled:opacity-40 hover:bg-blue-600 transition"
             >
               Continue to Survey
             </button>
@@ -1953,8 +1970,8 @@ function CandidateAssessment() {
 
       {/* 8. POST-TEST SURVEY */}
       {step === 'survey' && (
-        <main className="max-w-2xl mx-auto px-5 py-10">
-          <div className="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 shadow-xs">
+        <main className="max-w-2xl mx-auto px-4 sm:px-5 py-8 sm:py-10">
+          <div className="bg-white border border-slate-200 rounded-xl p-5 sm:p-8 shadow-xs">
             <h2 className="text-xl font-bold">Post-Assessment Feedback</h2>
             <p className="text-sm text-slate-600 mt-1">
               You have completed all three sections of the assessment. Please
@@ -1968,7 +1985,7 @@ function CandidateAssessment() {
                   1. How would you describe the format of the assessment you just
                   completed? *
                 </div>
-                <div className="flex justify-between text-xs text-slate-500 mt-1 mb-2">
+                <div className="flex justify-between text-[11px] sm:text-xs text-slate-500 mt-1.5 mb-2.5">
                   <span>1 — Very traditional</span>
                   <span>5 — Very game-like</span>
                 </div>
@@ -1978,7 +1995,7 @@ function CandidateAssessment() {
                       type="button"
                       key={num}
                       onClick={() => setMcFormatScore(num)}
-                      className={`py-2 rounded-lg text-sm font-semibold border ${
+                      className={`py-2.5 rounded-lg text-sm font-semibold border ${
                         mcFormatScore === num
                           ? 'bg-[#4A90E2] text-white border-[#4A90E2]'
                           : 'bg-white text-slate-700 border-slate-300'
@@ -2001,7 +2018,7 @@ function CandidateAssessment() {
                       type="button"
                       key={choice}
                       onClick={() => setMcTokensAnswer(choice)}
-                      className={`py-2 rounded-lg text-sm font-semibold border ${
+                      className={`py-2.5 rounded-lg text-sm font-semibold border ${
                         mcTokensAnswer === choice
                           ? 'bg-[#4A90E2] text-white border-[#4A90E2]'
                           : 'bg-white text-slate-700 border-slate-300'
@@ -2018,7 +2035,7 @@ function CandidateAssessment() {
                   key={item.id}
                   className="border-b border-slate-100 pb-4 last:border-none"
                 >
-                  <div className="text-sm font-medium text-[#2C2C2C] mb-2">
+                  <div className="text-sm font-medium text-[#2C2C2C] mb-2.5">
                     {idx + 3}. {item.text} *
                   </div>
                   <div className="grid grid-cols-5 gap-2">
@@ -2029,7 +2046,7 @@ function CandidateAssessment() {
                         onClick={() =>
                           setSurvey((prev) => ({ ...prev, [item.id]: val }))
                         }
-                        className={`py-2 rounded-lg text-xs sm:text-sm font-semibold border transition ${
+                        className={`py-2.5 rounded-lg text-xs sm:text-sm font-semibold border transition ${
                           survey[item.id] === val
                             ? 'bg-[#4A90E2] text-white border-[#4A90E2]'
                             : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
@@ -2052,7 +2069,7 @@ function CandidateAssessment() {
                   rows={3}
                   value={openFeedback}
                   onChange={(e) => setOpenFeedback(e.target.value)}
-                  className="w-full border border-slate-300 rounded-lg p-3 text-sm"
+                  className="w-full border border-slate-300 rounded-lg p-3 text-base sm:text-sm"
                   placeholder="Optional comments (max 300 characters)..."
                 />
               </div>
@@ -2077,18 +2094,18 @@ function CandidateAssessment() {
 
       {/* B. GAMIFIED RESULTS & BADGE SCREEN */}
       {isGamified && step === 'results' && (
-        <main className="max-w-2xl mx-auto px-5 py-12 relative">
+        <main className="max-w-2xl mx-auto px-4 sm:px-5 py-8 sm:py-12 relative">
           <CssConfetti count={30} />
           {(() => {
             const { s1, s2, s3, total } = computeScores();
             const tier = getBadgeTier(total);
             return (
-              <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-lg border border-slate-200 text-center relative z-10">
+              <div className="bg-white rounded-2xl p-5 sm:p-8 shadow-lg border border-slate-200 text-center relative z-10">
                 <div
-                  className="w-20 h-20 rounded-full flex items-center justify-center mx-auto text-white shadow-md animate-badge"
+                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto text-white shadow-md animate-badge"
                   style={{ backgroundColor: tier.color }}
                 >
-                  <Award className="w-10 h-10" />
+                  <Award className="w-8 h-8 sm:w-10 sm:h-10" />
                 </div>
 
                 <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mt-4">
@@ -2104,7 +2121,7 @@ function CandidateAssessment() {
                   {tier.desc}
                 </p>
 
-                <div className="mt-6 p-5 rounded-xl bg-slate-50 border border-slate-200">
+                <div className="mt-6 p-4 sm:p-5 rounded-xl bg-slate-50 border border-slate-200">
                   <div className="text-xs text-slate-500">Total Score</div>
                   <div className="text-3xl font-bold text-[#2C2C2C]">
                     {total} <span className="text-base font-normal">/ 30</span>
@@ -2154,7 +2171,7 @@ function CandidateAssessment() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2 mt-5 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-5 text-xs">
                   {[1, 2, 3].map((num) => (
                     <div
                       key={num}
@@ -2172,7 +2189,7 @@ function CandidateAssessment() {
 
                 <button
                   onClick={() => setStep('debrief')}
-                  className="mt-6 px-8 py-3 rounded-lg bg-[#4A90E2] hover:bg-blue-600 text-white font-semibold text-sm transition"
+                  className="mt-6 w-full sm:w-auto px-8 py-3.5 rounded-lg bg-[#4A90E2] hover:bg-blue-600 text-white font-semibold text-sm transition"
                 >
                   Continue to Research Debrief
                 </button>
@@ -2184,10 +2201,10 @@ function CandidateAssessment() {
 
       {/* 10. DEBRIEF & THANK YOU SCREEN */}
       {step === 'debrief' && (
-        <main className="max-w-xl mx-auto px-5 py-16">
-          <div className="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 shadow-xs">
+        <main className="max-w-xl mx-auto px-4 sm:px-5 py-12 sm:py-16">
+          <div className="bg-white border border-slate-200 rounded-xl p-5 sm:p-8 shadow-xs">
             <div className="flex items-center gap-2 text-[#0D9488] font-bold text-lg mb-3">
-              <CheckCircle2 className="w-6 h-6" />
+              <CheckCircle2 className="w-6 h-6 shrink-0" />
               <span>Submission Recorded</span>
             </div>
 
@@ -2269,7 +2286,7 @@ function AdminPanel() {
             value={pwd}
             onChange={(e) => setPwd(e.target.value)}
             placeholder="Enter Admin Password"
-            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
+            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-base sm:text-sm"
           />
           <button
             type="submit"
@@ -2433,7 +2450,7 @@ function AdminPanel() {
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-[#2C2C2C]">
-      <header className="bg-white border-b border-slate-200 px-6 py-4 flex flex-wrap items-center justify-between gap-3">
+      <header className="bg-white border-b border-slate-200 px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2 font-bold text-lg">
           <BarChart3 className="w-5 h-5 text-[#4A90E2]" />
           <span>Talvexo Research Dashboard</span>
@@ -2463,8 +2480,8 @@ function AdminPanel() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 py-8 space-y-6">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
           <div className="bg-white p-4 rounded-xl border border-slate-200">
             <div className="text-xs text-slate-500">Total Completed</div>
             <div className="text-2xl font-bold mt-1">{rows.length}</div>
