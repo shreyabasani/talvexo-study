@@ -1191,16 +1191,10 @@ function CandidateAssessment() {
         </header>
       )}
 
-      {/* MOBILE-FRIENDLY CENTERED CHARACTER FEEDBACK MODAL */}
+     {/* MOBILE-FRIENDLY CENTERED CHARACTER FEEDBACK MODAL */}
       {isGamified && popup && (
-        <div
-          onClick={proceedAfterPopup}
-          className="fixed inset-0 z-50 bg-slate-900/45 backdrop-blur-[2px] flex items-center justify-center p-4"
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="bg-white border-2 border-[#0D9488] rounded-2xl p-5 sm:p-6 shadow-2xl w-full max-w-md space-y-4"
-          >
+        <div className="fixed inset-0 z-50 bg-slate-900/45 backdrop-blur-[2px] flex items-center justify-center p-4">
+          <div className="bg-white border-2 border-[#0D9488] rounded-2xl p-5 sm:p-6 shadow-2xl w-full max-w-md space-y-4">
             <div className="flex items-center gap-3.5">
               <CharacterAvatar char={popup.speaker} size="md" />
               <div className="min-w-0">
@@ -1216,16 +1210,6 @@ function CandidateAssessment() {
             <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-medium text-[#2C2C2C] leading-relaxed">
               “{popup.message}”
             </div>
-
-            <button
-              type="button"
-              onClick={proceedAfterPopup}
-              className="w-full py-3 rounded-xl bg-[#0D9488] hover:bg-teal-700 active:scale-[0.99] text-white text-sm font-bold shadow-sm transition"
-            >
-              {qIndex + 1 < currentQuestions.length
-                ? 'Next Decision →'
-                : 'Complete Challenge →'}
-            </button>
           </div>
         </div>
       )}
